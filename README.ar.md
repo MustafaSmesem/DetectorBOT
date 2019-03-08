@@ -6,3 +6,8 @@
 يملك **ديتيكتوربوت** مكونين أساسيين:
 - [تطبيق أندريود **ديتيكتوربوت**](https://github.com/MustafaSmesem/DetectorBOT/tree/master/android) الذي سيقوم باكتشاف المعدات حول الروبوت ويرسل الأوامر للأردوينو عبر البلوتوث.
 - [برنامج **ديتيكتوربوت** للأردوينو](https://github.com/MustafaSmesem/DetectorBOT/tree/master/arduino) الذي سيقوم بالتحكم بمحركات وحساسات الروبوت وفقاً للأوامر التي استقبلها من تطبيق الأندرويد.
+
+
+### المصادر
+- [دليل **تنسورفلو**](https://www.tensorflow.org/lite/guide)
+- [دليل **أردوينو**](https://www.arduino.cc/en/Guide/HomePage)
