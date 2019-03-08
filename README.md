@@ -8,7 +8,7 @@ A robot that use TensorFlow lite object-detection app to collect the different e
 - [**DetectorBOT** arduino program](https://github.com/MustafaSmesem/DetectorBOT/tree/master/arduino) which will control the robot's motors and sensors according to the commands that's received from the android app.
 
 ```
-hello cd 
+hello DetectorBOT 
 ```
 ### Resources:
 - [*Tensorflow Lite* guide](https://www.tensorflow.org/lite/guide)
