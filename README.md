@@ -10,6 +10,12 @@ A robot that use TensorFlow lite object-detection app to collect the different e
 ```
 hello DetectorBOT 
 ```
+
+```diff
++ this will be highlighted in green
+- this will be highlighted in red
+```
+
 ### Resources:
 - [*Tensorflow Lite* guide](https://www.tensorflow.org/lite/guide)
 - [*Arduino* guide](https://www.arduino.cc/en/Guide/HomePage)
