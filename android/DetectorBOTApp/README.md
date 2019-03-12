@@ -4,7 +4,7 @@
 This is a camera app that continuously detects the objects that developed by Tensorflow Lite team I have edited it to fits the requirements of my project.
 you can see the orginal project from [Here](https://github.com/tensorflow/examples/tree/master/lite/examples/object_detection/android).
 
-The model files are already in the assests folder which trained on 1000 photo for 6 classes (screw , screw driver , scissor , pliers , battery , wrench). you can make your custom model and replace the assets [detect.tflit](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/detect.tflite), [labelmap.pbtxt](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/labelmap.txt) with your model files.
+The model files are already in the assests folder which trained by [ssdlite_mobilenet_v2_coco](https://github.com/MustafaSmesem/DetectorBOT/edit/master/android/ssdlite_mobilenet_v2_coco_2018_05_09) on 1000 photo for 6 classes (screw , screw driver , scissor , pliers , battery , wrench). you can make your custom model and replace the assets [detect.tflit](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/detect.tflite), [labelmap.pbtxt](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/labelmap.txt) with your model files.
 
 ### Notes:
 - the first label in the label map must be ???.
