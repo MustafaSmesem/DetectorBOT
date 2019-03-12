@@ -1,14 +1,24 @@
-# TensorFlow Lite Object Detection Android Demo
+# DetectorBOT Android App
+
 ### Overview
-This is a camera app that continuously detects the objects (bounding boxes and classes) in the frames seen by your device's back camera, using a quantized [MobileNet SSD](https://github.com/tensorflow/models/tree/master/research/object_detection) model trained on the [COCO dataset](http://cocodataset.org/). These instructions walk you through building and running the demo on an Android device.
+This is a camera app that continuously detects the objects that developed by Tensorflow Lite team I have edited it to fits the requirements of my project.
+you can see the orginal project from [Here](https://github.com/tensorflow/examples/tree/master/lite/examples/object_detection/android).
 
-The model files are downloaded via Gradle scripts when you build and run. You don't need to do any steps to download TFLite models into the project explicitly.
+The model files are already in the assests folder which trained by [ssdlite_mobilenet_v2_coco](https://github.com/MustafaSmesem/DetectorBOT/edit/master/android/ssdlite_mobilenet_v2_coco_2018_05_09) on 1000 photo for 6 classes (screw , screw driver , scissor , pliers , battery , wrench). you can make your custom model and replace the assets [detect.tflit](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/detect.tflite), [labelmap.pbtxt](https://github.com/MustafaSmesem/DetectorBOT/blob/master/android/DetectorBOTApp/app/src/main/assets/labelmap.txt) with your model files.
 
-Application can run either on device or emulator.
-
+### Notes:
+- the first label in the label map must be ???.
+- the labelmap for DetectorBOT is written in the turkish language.
+  1. screw => vida
+  2. screw driver => tornavida
+  3. scissor => makas
+  4. plires => pense
+  5. battery => pil
+  6. wrench => ingliz anahtari
+  
 <!-- TODO(b/124116863): Add app screenshot. -->
 
-## Build the demo using Android Studio
+## Build the App using Android Studio
 
 ### Prerequisites
 
@@ -32,10 +42,5 @@ Click the Run button (the green arrow) or select Run > Run 'android' from the to
 * Also, you need to have an Android device plugged in with developer options enabled at this point. See **[here](https://developer.android.com/studio/run/device)** for more details on setting up developer devices.
 
 
-### Model used
-Downloading, extraction and placing it in assets folder has been managed automatically by download.gradle.
-
-If you explicitly want to download the model, you can download from **[here](http://storage.googleapis.com/download.tensorflow.org/models/tflite/coco_ssd_mobilenet_v1_1.0_quant_2018_06_29.zip)**. Extract the zip to get the .tflite and label file.
-
-### Additional Note
-_Please do not delete the assets folder content_. If you explicitly deleted the files, then please choose *Build*->*Rebuild* from menu to re-download the deleted model files into assets folder.
+### Training custom model
+You can training the app for your own data set by following the instructions from [here](https://github.com/MustafaSmesem/DetectorBOT/tree/master/android/training_data_set).
