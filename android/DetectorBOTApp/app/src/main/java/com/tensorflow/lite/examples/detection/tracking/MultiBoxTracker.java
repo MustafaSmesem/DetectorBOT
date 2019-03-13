@@ -52,13 +52,13 @@ public class MultiBoxTracker {
   // Consider object to be lost if correlation falls below this threshold.
   private static final float MIN_CORRELATION = 0.3f;
   private static final int[] COLORS = {
-    Color.BLUE,
-    Color.RED,
-    Color.GREEN,
-    Color.YELLOW,
     Color.CYAN,
-    Color.MAGENTA,
     Color.WHITE,
+    Color.GREEN,
+    Color.RED,
+    Color.YELLOW,
+    Color.MAGENTA,
+    Color.BLUE,
     Color.parseColor("#55FF55"),
     Color.parseColor("#FFA500"),
     Color.parseColor("#FF8888"),
@@ -205,11 +205,11 @@ public class MultiBoxTracker {
       initialized = true;
 
       if (objectTracker == null) {
-        String message =
+       /* String message =
             "Object tracking support not found. "
                 + "See tensorflow/examples/android/README.md for details.";
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-        logger.e(message);
+        logger.e(message);*/
       }
     }
 

@@ -19,7 +19,12 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Trace;
+import android.util.Size;
+import android.view.View;
+import android.widget.CompoundButton;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,18 +40,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import org.tensorflow.lite.Interpreter;
+
+import com.tensorflow.lite.examples.detection.CameraActivity;
+import com.tensorflow.lite.examples.detection.InfoFragment;
 import com.tensorflow.lite.examples.detection.env.Logger;
 
 /**
  * Wrapper for frozen detection models trained using the Tensorflow Object Detection API:
  * github.com/tensorflow/models/tree/master/research/object_detection
  */
-public class TFLiteObjectDetectionAPIModel implements Classifier {
+public class TFLiteObjectDetectionAPIModel implements Classifier{
   private static final Logger LOGGER = new Logger();
 
   // Only return this many results.
   private static final int NUM_DETECTIONS = 10;
-  private static final int NUM_USE = 10;
   // Float model
   private static final float IMAGE_MEAN = 128.0f;
   private static final float IMAGE_STD = 128.0f;
@@ -75,7 +82,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
 
   private Interpreter tfLite;
 
-  private TFLiteObjectDetectionAPIModel() {}
+  public TFLiteObjectDetectionAPIModel() {}
 
   /** Memory-map the model file in Assets. */
   private static MappedByteBuffer loadModelFile(AssetManager assets, String modelFilename)
@@ -148,12 +155,11 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
 
   @Override
   public List<Recognition> recognizeImage(final Bitmap bitmap) {
-    // Log this method so that it can be analyzed with systrace.
+
     Trace.beginSection("recognizeImage");
 
     Trace.beginSection("preprocessBitmap");
-    // Preprocess the image data from 0-255 int to normalized float based
-    // on the provided parameters.
+
     bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
 
     imgData.rewind();
@@ -193,28 +199,15 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
     Trace.beginSection("run");
     tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
     Trace.endSection();
-
-    // Show the best detections.
-    // after scaling them back to the input size.
-    final ArrayList<Recognition> recognitions = new ArrayList<>(NUM_DETECTIONS);
-    for (int i = 0; i < NUM_USE; ++i) {
-      final RectF detection =
-          new RectF(
-              outputLocations[0][i][1] * inputSize,
-              outputLocations[0][i][0] * inputSize,
-              outputLocations[0][i][3] * inputSize,
-              outputLocations[0][i][2] * inputSize);
-      // SSD Mobilenet V1 Model assumes class 0 is background class
-      // in label file and class labels start from 1 to number_of_classes+1,
-      // while outputClasses correspond to class index from 0 to number_of_classes
-      int labelOffset = 1;
-      recognitions.add(
-          new Recognition(
-              "" + i,
-              labels.get((int) outputClasses[0][i] + labelOffset),
-              outputScores[0][i],
-              detection));
+    int bestScore = 0;
+    for (int i = 0; i < NUM_DETECTIONS; ++i){
+        if(outputScores[0][i]>outputScores[0][bestScore]){
+            bestScore = i;
+        }
     }
+    final ArrayList<Recognition> recognitions = new ArrayList<>(1);
+    final RectF detection = new RectF(outputLocations[0][bestScore][1] * inputSize,outputLocations[0][bestScore][0] * inputSize,outputLocations[0][bestScore][3] * inputSize,outputLocations[0][bestScore][2] * inputSize);
+    recognitions.add(new Recognition("" + bestScore,labels.get((int) outputClasses[0][bestScore] + 1),outputScores[0][bestScore],detection));
     Trace.endSection(); // "recognizeImage"
     return recognitions;
   }
@@ -238,4 +231,5 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   public void setUseNNAPI(boolean isChecked) {
     if (tfLite != null) tfLite.setUseNNAPI(isChecked);
   }
+
 }

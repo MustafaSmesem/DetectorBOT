@@ -18,6 +18,7 @@ package com.tensorflow.lite.examples.detection;
 
 import android.Manifest;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -34,18 +35,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tensorflow.lite.examples.detection.env.ImageUtils;
 import com.tensorflow.lite.examples.detection.env.Logger;
-import com.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import java.nio.ByteBuffer;
 
@@ -55,7 +58,8 @@ public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        BluetoothFragment.OnFragmentInteractionListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -74,20 +78,17 @@ public abstract class CameraActivity extends AppCompatActivity
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
 
-  private TextView position;
-  private DetectorActivity detectorActivity;
 
-  /*
-  private LinearLayout bottomSheetLayout;
-  private LinearLayout gestureLayout;
-  private BottomSheetBehavior sheetBehavior;
+  /***
+   *Bluetooth variables
+   */
+  private BluetoothAdapter myBT;
+  private ImageButton bluetoothBtn;
+  boolean isBluetoothFragment = false;
 
-  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
-  protected ImageView bottomSheetArrowImageView;
-  private ImageView plusImageView, minusImageView;
-  private SwitchCompat apiSwitchCompat;
-  private TextView threadsTextView;
-*/
+
+  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score , posLeft , posRight, posTop, posBottom;
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -96,80 +97,45 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.activity_camera);
 
+    tv_positionX = findViewById(R.id.posX);
+    tv_positionY = findViewById(R.id.posY);
+    tv_detectedLabel = findViewById(R.id.detected_label);
+    tv_score = findViewById(R.id.score_value);
+    posLeft = findViewById(R.id.pos_left_value);
+    posBottom = findViewById(R.id.pos_bottom_value);
+    posRight = findViewById(R.id.pos_right_value);
+    posTop = findViewById(R.id.pos_top_value);
+
     if (hasPermission()) {
       setFragment();
     } else {
       requestPermission();
     }
-    detectorActivity = new DetectorActivity();
-    position = findViewById(R.id.tv_position);
-    /*
-    threadsTextView = findViewById(R.id.threads);
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
-    apiSwitchCompat = findViewById(R.id.api_info_switch);
-    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
-    gestureLayout = findViewById(R.id.gesture_layout);
-    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
-    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
 
-    ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
-    vto.addOnGlobalLayoutListener(
-        new ViewTreeObserver.OnGlobalLayoutListener() {
+    myBT = BluetoothAdapter.getDefaultAdapter();
+    bluetoothBtn = findViewById(R.id.btn_bluetooth);
+    bluetoothBtn.setOnClickListener(new View.OnClickListener() {
           @Override
-          public void onGlobalLayout() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-              gestureLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            } else {
-              gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-            //                int width = bottomSheetLayout.getMeasuredWidth();
-            int height = gestureLayout.getMeasuredHeight();
+          public void onClick(View v) {
+              bluetoothStatusCheck();
+              BluetoothFragment fragment1 = new BluetoothFragment();
+              InfoFragment fragment2 = new InfoFragment();
 
-            sheetBehavior.setPeekHeight(height);
+              FragmentManager fm = getSupportFragmentManager();
+              FragmentTransaction ft = fm.beginTransaction();
+              if(!isBluetoothFragment){
+                  isBluetoothFragment=true;
+                  ft.setCustomAnimations(android.R.anim.fade_in , android.R.anim.fade_out);
+                  ft.addToBackStack("data");
+                  ft.replace(R.id.fragments_container , fragment1 , "bluetoothFragment").commit();
+              }else{
+                  isBluetoothFragment=false;
+                  ft.setCustomAnimations(android.R.anim.fade_in , android.R.anim.fade_out);
+                  ft.replace(R.id.fragments_container, fragment2 , "infoFragment").commit();
+              }
           }
-        });
-    sheetBehavior.setHideable(false);
+     });
 
-    sheetBehavior.setBottomSheetCallback(
-        new BottomSheetBehavior.BottomSheetCallback() {
-          @Override
-          public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            switch (newState) {
-              case BottomSheetBehavior.STATE_HIDDEN:
-                break;
-              case BottomSheetBehavior.STATE_EXPANDED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
-                }
-                break;
-              case BottomSheetBehavior.STATE_COLLAPSED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                }
-                break;
-              case BottomSheetBehavior.STATE_DRAGGING:
-                break;
-              case BottomSheetBehavior.STATE_SETTLING:
-                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                break;
-            }
-          }
-
-          @Override
-          public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
-        });
-
-    frameValueTextView = findViewById(R.id.frame_info);
-    cropValueTextView = findViewById(R.id.crop_info);
-    inferenceTimeTextView = findViewById(R.id.inference_info);
-
-    apiSwitchCompat.setOnCheckedChangeListener(this);
-
-    plusImageView.setOnClickListener(this);
-    minusImageView.setOnClickListener(this);
-
-    */
   }
 
   protected int[] getRgbBytes() {
@@ -304,7 +270,7 @@ public abstract class CameraActivity extends AppCompatActivity
   public synchronized void onResume() {
     LOGGER.d("onResume " + this);
     super.onResume();
-
+    bluetoothStatusCheck();
     handlerThread = new HandlerThread("inference");
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
@@ -490,51 +456,14 @@ public abstract class CameraActivity extends AppCompatActivity
         return 0;
     }
   }
-/*
-  @Override
-  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    setUseNNAPI(isChecked);
-    if (isChecked) apiSwitchCompat.setText("NNAPI");
-    else apiSwitchCompat.setText("TFLITE");
+
+  public void bluetoothStatusCheck(){
+      if(myBT.isEnabled())
+          bluetoothBtn.setImageResource(R.drawable.bluetooth_on);
+      else
+          bluetoothBtn.setImageResource(R.drawable.bluetooth_off);
   }
 
-  @Override
-  public void onClick(View v) {
-    if (v.getId() == R.id.plus) {
-      String threads = threadsTextView.getText().toString().trim();
-      int numThreads = Integer.parseInt(threads);
-      if (numThreads >= 9) return;
-      numThreads++;
-      threadsTextView.setText(String.valueOf(numThreads));
-      setNumThreads(numThreads);
-    } else if (v.getId() == R.id.minus) {
-      String threads = threadsTextView.getText().toString().trim();
-      int numThreads = Integer.parseInt(threads);
-      if (numThreads == 1) {
-        return;
-      }
-      numThreads--;
-      threadsTextView.setText(String.valueOf(numThreads));
-      setNumThreads(numThreads);
-    }
-  }
-
-  protected void showFrameInfo(String frameInfo) {
-    frameValueTextView.setText(frameInfo);
-  }
-
-  protected void showCropInfo(String cropInfo) {
-    cropValueTextView.setText(cropInfo);
-  }
-
-  protected void showInference(String inferenceTime) {
-    inferenceTimeTextView.setText(inferenceTime);
-  }
-*/
-
-  private void setPosition(){
-    position.setText("(X: " + detectorActivity.x +", Y: " + detectorActivity.y+")");
-  }
 
   protected abstract void processImage();
 

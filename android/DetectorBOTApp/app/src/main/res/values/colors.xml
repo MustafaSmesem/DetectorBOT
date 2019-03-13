@@ -3,6 +3,14 @@
     <color name="colorPrimary">#98999b</color>
     <color name="colorPrimaryDark">#404041</color>
     <color name="colorAccent">#d2d0d1</color>
-
+    <color name="transparentColor">#00FFFFFF</color>
     <color name="semi_transparent">#66000000</color>
+    <color name="transparent">#00FFC107</color>
+    <color name="appPrimary">#79A6B3</color>
+    <color name="appPrimaryDark">#007896</color>
+    <color name="redColor">#DE0000</color>
+    <color name="greenColor">#16721A</color>
+    <color name="yellowColor">#FFC107</color>
+
+    <color name="whiteAlpha">#D0F8F7F7</color>
 </resources>

@@ -26,6 +26,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
@@ -42,6 +43,7 @@ import com.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIMod
 import com.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.9f;
+  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.9f;
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -70,6 +72,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Integer sensorOrientation;
 
   private Classifier detector;
+
+  private float positionX = 0, positionY = 0;
+  private String detectedLabel="";
+  private float score=0;
+  private float[] pos = new float[4];
+  DecimalFormat df = new DecimalFormat("##.##");
+  String scoreS;
 
   private long lastProcessingTimeMs;
   private Bitmap rgbFrameBitmap = null;
@@ -89,13 +98,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private BorderedText borderedText;
 
-  public float x=0;
-  public float y=0;
-
-
-
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
+
     final float textSizePx =
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, getResources().getDisplayMetrics());
@@ -222,13 +227,21 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
             for (final Classifier.Recognition result : results) {
               final RectF location = result.getLocation();
-              x = location.centerX();
-              y = location.centerY();
-
               if (location != null && result.getConfidence() >= minimumConfidence) {
-                canvas.drawPoint(x , y , paint);
 
-                cropToFrameTransform.mapRect(location);
+                  positionX = location.centerX();
+                  positionY = location.centerY();
+                  detectedLabel = result.getTitle();
+                  score = result.getConfidence();
+                  score *= 100;
+                  scoreS = df.format(score);
+                  pos[1] = location.left;
+                  pos[0] = location.top;
+                  pos[3] = location.right;
+                  pos[2] = location.bottom;
+                  canvas.drawPoint(positionX , positionY , paint);
+
+                  cropToFrameTransform.mapRect(location);
 
                 result.setLocation(location);
                 mappedRecognitions.add(result);
@@ -247,7 +260,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                     //showFrameInfo(previewWidth + "x" + previewHeight);
                     //showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
                     //showInference(lastProcessingTimeMs + "ms");
-
+                      tv_positionX.setText(""+positionX);
+                      tv_positionY.setText(""+positionY);
+                      tv_detectedLabel.setText(""+detectedLabel);
+                      tv_score.setText(scoreS+"%");
+                      posLeft.setText(""+pos[1]);
+                      posTop.setText(""+pos[0]);
+                      posRight.setText(""+pos[3]);
+                      posBottom.setText(""+pos[2]);
                   }
                 });
           }
@@ -271,6 +291,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   @Override
   public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+  }
+
+  @Override
+  public void onFragmentInteraction(Uri uri) {
 
   }
 
