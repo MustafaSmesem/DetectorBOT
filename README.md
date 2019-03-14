@@ -2,7 +2,7 @@
 
 A robot that use TensorFlow lite object-detection app to collect the different equipments
 
-![Image from side for DetectorBOT](https://github.com/MustafaSmesem/DetectorBOT/blob/master/images_gallery/DetectorBOT_0001.jpg) ![Image from front for DetectorBOT](https://github.com/MustafaSmesem/DetectorBOT/blob/master/images_gallery/DetectorBOT_0002.jpg)
+![Image from side for DetectorBOT](https://github.com/MustafaSmesem/DetectorBOT/blob/master/images_gallery/DetectorBOT_0001.jpg) | ![Image from front for DetectorBOT](https://github.com/MustafaSmesem/DetectorBOT/blob/master/images_gallery/DetectorBOT_0002.jpg)
 
 
 ## DetectorBOT Components:
