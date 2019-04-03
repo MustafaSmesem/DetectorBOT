@@ -42,6 +42,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -85,7 +86,6 @@ public abstract class CameraActivity extends AppCompatActivity
   private BluetoothAdapter myBT;
   private ImageButton bluetoothBtn;
   boolean isBluetoothFragment = false;
-
 
   public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score , posLeft , posRight, posTop, posBottom;
 
@@ -135,7 +135,10 @@ public abstract class CameraActivity extends AppCompatActivity
               }
           }
      });
-
+    /***
+        BluetoothFragment fragment1 = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag("bluetoothFragment");
+        fragment1.sendMsg("1");
+    ***/
   }
 
   protected int[] getRgbBytes() {

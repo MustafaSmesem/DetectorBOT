@@ -199,15 +199,9 @@ public class TFLiteObjectDetectionAPIModel implements Classifier{
     Trace.beginSection("run");
     tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
     Trace.endSection();
-    int bestScore = 0;
-    for (int i = 0; i < NUM_DETECTIONS; ++i){
-        if(outputScores[0][i]>outputScores[0][bestScore]){
-            bestScore = i;
-        }
-    }
     final ArrayList<Recognition> recognitions = new ArrayList<>(1);
-    final RectF detection = new RectF(outputLocations[0][bestScore][1] * inputSize,outputLocations[0][bestScore][0] * inputSize,outputLocations[0][bestScore][3] * inputSize,outputLocations[0][bestScore][2] * inputSize);
-    recognitions.add(new Recognition("" + bestScore,labels.get((int) outputClasses[0][bestScore] + 1),outputScores[0][bestScore],detection));
+    final RectF detection = new RectF(outputLocations[0][0][1] * inputSize,outputLocations[0][0][0] * inputSize,outputLocations[0][0][3] * inputSize,outputLocations[0][0][2] * inputSize);
+    recognitions.add(new Recognition("" + 0,labels.get((int) outputClasses[0][0] + 1),outputScores[0][0],detection));
     Trace.endSection(); // "recognizeImage"
     return recognitions;
   }

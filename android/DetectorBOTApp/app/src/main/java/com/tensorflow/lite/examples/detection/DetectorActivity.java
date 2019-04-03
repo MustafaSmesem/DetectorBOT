@@ -63,7 +63,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.9f;
+  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.95f;
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -239,6 +239,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   pos[0] = location.top;
                   pos[3] = location.right;
                   pos[2] = location.bottom;
+                  onFragmentInteraction(detectedLabel+" ("+scoreS+"%)$");
                   canvas.drawPoint(positionX , positionY , paint);
 
                   cropToFrameTransform.mapRect(location);
@@ -294,9 +295,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   }
 
-  @Override
-  public void onFragmentInteraction(Uri uri) {
 
+  @Override
+  public void onFragmentInteraction(String msg) {
+    BluetoothFragment fragment1 = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag("bluetoothFragment");
+    fragment1.sendMsg(msg);
   }
 
 
