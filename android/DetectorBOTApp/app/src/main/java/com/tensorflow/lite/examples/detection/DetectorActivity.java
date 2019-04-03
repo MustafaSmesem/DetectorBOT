@@ -240,6 +240,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   pos[0] = location.top;
                   pos[3] = location.right;
                   pos[2] = location.bottom;
+
+
                   try {
                     onFragmentInteraction(detectedLabel+" ("+scoreS+"%)$");
                   }catch (Exception e){
