@@ -16,6 +16,7 @@
 
 package com.tensorflow.lite.examples.detection;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -239,7 +240,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   pos[0] = location.top;
                   pos[3] = location.right;
                   pos[2] = location.bottom;
-                  onFragmentInteraction(detectedLabel+" ("+scoreS+"%)$");
+                  try {
+                    onFragmentInteraction(detectedLabel+" ("+scoreS+"%)$");
+                  }catch (Exception e){
+                    Toast.makeText(getApplicationContext(),"Please connect to DetectorBOT",Toast.LENGTH_SHORT).show();
+                  }
+
                   canvas.drawPoint(positionX , positionY , paint);
 
                   cropToFrameTransform.mapRect(location);
