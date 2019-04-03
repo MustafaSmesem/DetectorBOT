@@ -9,3 +9,5 @@
 
 
 ### DetectorBOT App ScreenShoots:
+![](https://github.com/MustafaSmesem/DetectorBOT/blob/master/images_gallery/screwDriver_detected.jpg) | ![]() | ![]()
+--------- | --------- | ---------
