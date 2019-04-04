@@ -121,11 +121,13 @@ void getDistance(int n){
       break;
     case 2:
       digitalWrite(ultraVCC2, HIGH);
+      delay(1);
       distance = sonar2.ping_cm();
       digitalWrite(ultraVCC2, LOW);
       break;
     case 3:
       digitalWrite(ultraVCC3, HIGH);
+      delay(1);
       distance = sonar3.ping_cm();
       digitalWrite(ultraVCC3, LOW);
       break;

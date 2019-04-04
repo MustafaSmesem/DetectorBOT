@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
@@ -73,6 +74,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Integer sensorOrientation;
 
   private Classifier detector;
+
+  private boolean bluetoothSendStatus = true;
 
   private float positionX = 0, positionY = 0;
   private String detectedLabel="";
@@ -243,17 +246,29 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
                   try {
-                    onFragmentInteraction(detectedLabel+" ("+scoreS+"%)$");
+                    if (positionX < 200 || positionY < 120 || positionY > 160){
+                      onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
+                      onFragmentInteraction("*#");
+
+                    }else{
+                      onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
+                      onFragmentInteraction("/#");
+                    }
+
+                    bluetoothSendStatus = true;
                   }catch (Exception e){
-                    Toast.makeText(getApplicationContext(),"Please connect to DetectorBOT",Toast.LENGTH_SHORT).show();
+                    if(bluetoothSendStatus){
+                      Toast.makeText(getApplicationContext(),"Please connect to DetectorBOT",Toast.LENGTH_SHORT).show();
+                      bluetoothSendStatus = false;
+                    }
                   }
 
                   canvas.drawPoint(positionX , positionY , paint);
 
                   cropToFrameTransform.mapRect(location);
 
-                result.setLocation(location);
-                mappedRecognitions.add(result);
+                  result.setLocation(location);
+                  mappedRecognitions.add(result);
               }
             }
 

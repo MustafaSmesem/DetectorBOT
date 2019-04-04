@@ -145,6 +145,7 @@ public class BluetoothFragment extends Fragment {
                 if(msg.what == CONNECTING_STATUS){
                     if(msg.arg1 == 1){
                         tvFoundedBtName.setText("Device: " + (String)(msg.obj));
+                        sendMsg("-#");
                         status = true;
                     }
                     else {
@@ -209,6 +210,7 @@ public class BluetoothFragment extends Fragment {
     }
 
     private void bluetoothOff(){
+        sendMsg("!#");
         myBluetooth.disable(); // turn off
         tvFoundedBtAddress.setText("Bluetooth disabled");
         Toast.makeText(getContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();

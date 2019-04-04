@@ -10,9 +10,20 @@ SoftwareSerial bluetooth(2, 4); // RX, TX
 LiquidCrystal_I2C lcd(0x3f,20,4);
 unsigned long previousMillis = 0;
 const long interval = 1000;           
+char msg;
 
+int redLed=5;
+int greenLed=6;
+int blueLed=7;
+
+boolean printFlag = true;
 void setup() {
-  pinMode(12, OUTPUT);
+  pinMode(redLed, OUTPUT);
+  pinMode(greenLed, OUTPUT);
+  pinMode(blueLed, OUTPUT);
+  digitalWrite(redLed, LOW);
+  digitalWrite(greenLed, LOW);
+  digitalWrite(blueLed, LOW);
   bluetooth.begin(9600);
 
   pinMode(ultraTRIG, OUTPUT);
@@ -28,16 +39,27 @@ void setup() {
 }
 
 void loop() {
-
-  if (bluetooth.available()) { // check if anything in UART buffer
-    lcd.clear();
-    lcd.setCursor(0,0);
+  if (bluetooth.available()) { // check if anything in UART buffer 
+      lcd.clear();
+      lcd.setCursor(0,0);
     while(bluetooth.available()){
       delay(1);
-      char msg = bluetooth.read();
-      if(msg == '$')
-        break;
-      lcd.print(msg);
+      msg= bluetooth.read();
+      if(msg == '#'){
+        break;  
+      }else if(msg=='-'){
+          digitalWrite(redLed, HIGH);
+      }else if(msg=='/'){
+          digitalWrite(greenLed, LOW);
+          digitalWrite(blueLed, HIGH);
+      }else if(msg=='*'){
+          digitalWrite(greenLed, HIGH);
+          digitalWrite(blueLed, LOW);
+      }else if(msg=='!'){
+          digitalWrite(redLed, LOW);
+      }else{
+          lcd.print(msg);
+      }    
     }
   }
   
@@ -47,6 +69,10 @@ void loop() {
     int distance = sonar.ping_cm();
     bluetooth.print(distance);
     bluetooth.print("cm   ");
+    if(!bluetooth.available()){
+      digitalWrite(greenLed, LOW);
+      digitalWrite(blueLed, LOW);
+    }
   }
 
 }
