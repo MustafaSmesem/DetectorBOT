@@ -16,7 +16,6 @@ int redLed=5;
 int greenLed=6;
 int blueLed=7;
 
-boolean printFlag = true;
 void setup() {
   pinMode(redLed, OUTPUT);
   pinMode(greenLed, OUTPUT);
