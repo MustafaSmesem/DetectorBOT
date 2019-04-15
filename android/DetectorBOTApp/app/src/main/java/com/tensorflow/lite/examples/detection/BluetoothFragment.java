@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +56,7 @@ public class BluetoothFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private Vibrator vibe;
     private OnFragmentInteractionListener mListener;
 
     private ImageButton btnrefresh, btnVisible;
@@ -126,7 +127,7 @@ public class BluetoothFragment extends Fragment {
         btnrefresh = view.findViewById(R.id.ib_refresh);
         tvFoundedBtAddress = view.findViewById(R.id.tv_founded_bt_adress);
         tvFoundedBtName = view.findViewById(R.id.tv_founded_bt_name);
-
+        vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         btTurn = view.findViewById(R.id.switchBt);
         checkBT();
 
@@ -166,6 +167,7 @@ public class BluetoothFragment extends Fragment {
             btTurn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    vibe.vibrate(25);
                     if(isChecked){
                         bluetoothOn();
                     }else{
@@ -182,6 +184,7 @@ public class BluetoothFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     listPairedDevices(v);
+                    vibe.vibrate(25);
                 }
             });
 
@@ -189,6 +192,7 @@ public class BluetoothFragment extends Fragment {
                 @Override
                 public void onClick(View v){
                     discover(v);
+                    vibe.vibrate(25);
                 }
             });
         }

@@ -360,37 +360,37 @@ void checkCommands(){
         motorAngel = 180;
     }else if(Length == 3){
       if(cmdValue == "p1u" && pulselen1 < pulselen1Max){
-        pulselen1 += 10;
+        pulselen1 += 2;
         pwm.setPWM(s1, 0, pulselen1);
       }else if(cmdValue == "p1d" && pulselen1 > pulselen1Min){
-        pulselen1 -= 10;
+        pulselen1 -= 2;
         pwm.setPWM(s1, 0, pulselen1);
       }else if(cmdValue == "p2u" && pulselen2 < pulselen2Max){
-        pulselen2 += 10;
+        pulselen2 += 2;
         pwm.setPWM(s2, 0, pulselen2);
       }else if(cmdValue == "p2d" && pulselen2 > pulselen2Min){
-        pulselen2 -= 10;
+        pulselen2 -= 2;
         pwm.setPWM(s2, 0, pulselen2);
       }else if(cmdValue == "p3d" && pulselen3 < pulselen3Max){
-        pulselen3 += 10;
+        pulselen3 += 2;
         pwm.setPWM(s3, 0, pulselen3);
       }else if(cmdValue == "p3u" && pulselen3 > pulselen3Min){
-        pulselen3 -= 10;
+        pulselen3 -= 2;
         pwm.setPWM(s3, 0, pulselen3);
       }else if(cmdValue == "p4u" && pulselen4 < pulselen4Max){
-        pulselen4 += 5;
+        pulselen4 += 1;
         pwm.setPWM(s4, 0, pulselen4);
       }else if(cmdValue == "p4d" && pulselen4 > pulselen4Min){
-        pulselen4 -= 5;
+        pulselen4 -= 1;
         pwm.setPWM(s4, 0, pulselen4);
       }else if(cmdValue == "pxu" && pulselen2 < pulselen2Max){
-        pulselen2 +=5;
-        pulselen3 -=5;
+        pulselen2 +=2;
+        pulselen3 -=2;
         pwm.setPWM(s2, 0, pulselen2);
         pwm.setPWM(s3, 0, pulselen3);
       }else if(cmdValue == "pxd" && pulselen2 > pulselen2Min){
-        pulselen2 -=5;
-        pulselen3 +=5;
+        pulselen2 -=2;
+        pulselen3 +=2;
         pwm.setPWM(s2, 0, pulselen2);
         pwm.setPWM(s3, 0, pulselen3);
       }
@@ -409,7 +409,7 @@ void checkCommands(){
           pwm.setPWM(s4, 0, pulselen4);
         }else if(cmdValue[1] == '5'){
           pulselen2 = pulseValue*2+pulselen2Min;  
-          pulselen3 = 670 - pulselen2;
+          pulselen3 = 700 - pulselen2;
           pwm.setPWM(s3, 0, pulselen3);
           pwm.setPWM(s2, 0, pulselen2);
         }  

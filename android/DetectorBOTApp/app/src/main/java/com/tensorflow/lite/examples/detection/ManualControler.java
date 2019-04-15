@@ -1,6 +1,8 @@
 package com.tensorflow.lite.examples.detection;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -28,11 +30,13 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
     private SeekBar speedBar , servo1Bar , servo4Bar , servoxBar , angelBar;
     private int speedProgress=3 , angelProgress=2 , servo1Value = 157 , servo2Value = 0 , servo3Value = 187 , servo4Value = 10 , servoxValue=0;
     private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar , tvServoxBar , tvServo3 , tvServo2 , tvConnection , tvAngelBar;
-    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 200;
+    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 200 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 10 , servoxValueR=0 ;
     private RelativeLayout view;
     private ViewGroup.LayoutParams manLayoutPar;
     private boolean btFlag = true;
     private String connectionMsg = "";
+    private Vibrator vibe;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,8 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
         view = findViewById(R.id.man_layout);
         manLayoutPar = view.getLayoutParams();
         tvConnection = findViewById(R.id.tv_bt_connection);
+
+        vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         left = findViewById(R.id.left_btn);
         right = findViewById(R.id.right_btn);
         up = findViewById(R.id.up_btn);
@@ -70,6 +76,9 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
         angelBar = findViewById(R.id.angel_bar);
         angelBar.setProgress(angelProgress);
         tvAngelBar.setText(angelProgress + " %");
+
+        tvServo2.setText(servo2Value+"");
+        tvServo3.setText(servo3Value+"");
 
         servo1Up = findViewById(R.id.servo1_btn_plus);
         servo1Down = findViewById(R.id.servo1_btn_sub);
@@ -114,6 +123,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("l#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -137,6 +147,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("r#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -144,6 +155,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_UP:
                         try {
                             onFragmentInteraction("s#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -160,6 +172,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("f#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -183,6 +196,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("b#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -206,6 +220,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("lb#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -229,6 +244,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("lf#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -252,6 +268,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("rb#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -275,6 +292,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                     case MotionEvent.ACTION_DOWN:
                         try {
                             onFragmentInteraction("rf#");
+                            vibe.vibrate(25);
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                         }
@@ -291,182 +309,277 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
             }
         });
 
-        centerButton.setOnTouchListener(new View.OnTouchListener() {
+        centerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                servo1Value = servo1ValueR;
+                servo2Value = servo2ValueR;
+                servo3Value = servo3ValueR;
+                servo4Value = servo4ValueR;
+                servoxValue = servoxValueR;
+
+                servo1Bar.setProgress(servo1Value);
+                servo4Bar.setProgress(servo4Value);
+                servoxBar.setProgress(servoxValue);
+
+                tvServo1Bar.setText(servo1Value+"");
+                tvServo4Bar.setText(servo4Value+"");
+                tvServoxBar.setText(servoxValue+"");
+
+                tvServo2.setText(servo2Value+"");
+                tvServo3.setText(servo3Value+"");
+                try {
+                    onFragmentInteraction("c#");
+                    vibe.vibrate(25);
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        servo1Up.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch(event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        try {
-                            onFragmentInteraction("c#");
-                        }catch (Exception e){
-                            Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                        if(servo1Value < servo1Max){
+                            servo1Value ++;
+                            tvServo1Bar.setText(String.valueOf(servo1Value));
+                            servo1Bar.setProgress(servo1Value);
+                            try {
+                                onFragmentInteraction("p1u#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
                         }
                         return true;
                     case MotionEvent.ACTION_UP:
-                        try {
-                            onFragmentInteraction("s#");
-                        }catch (Exception e){
-                            Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                        }
+                        vibe.vibrate(10);
                         return true;
                 }
                 return false;
             }
         });
 
-        servo1Up.setOnClickListener(new View.OnClickListener() {
+        servo1Down.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo1Value < servo1Max){
-                    servo1Value +=5;
-                    tvServo1Bar.setText(String.valueOf(servo1Value));
-                    servo1Bar.setProgress(servo1Value);
-                    try {
-                        onFragmentInteraction("p1u#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo1Value > 0){
+                            servo1Value --;
+                            tvServo1Bar.setText(String.valueOf(servo1Value));
+                            servo1Bar.setProgress(servo1Value);
+                            try {
+                                onFragmentInteraction("p1d#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo1Down.setOnClickListener(new View.OnClickListener() {
+        servo2Up.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo1Value > 0){
-                    servo1Value -=5;
-                    tvServo1Bar.setText(String.valueOf(servo1Value));
-                    servo1Bar.setProgress(servo1Value);
-                    try {
-                        onFragmentInteraction("p1d#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo2Value < servo2Max){
+                            servo2Value ++;
+                            tvServo2.setText(String.valueOf(servo2Value));
+                            try {
+                                onFragmentInteraction("p2u#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo2Up.setOnClickListener(new View.OnClickListener() {
+        servo2Down.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo2Value < servo2Max){
-                    servo2Value +=5;
-                    tvServo2.setText(String.valueOf(servo2Value));
-                    try {
-                        onFragmentInteraction("p2u#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo2Value > 0){
+                            servo2Value --;
+                            tvServo2.setText(String.valueOf(servo2Value));
+                            try {
+                                onFragmentInteraction("p2d#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo2Down.setOnClickListener(new View.OnClickListener() {
+        servo3Up.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo2Value > 0){
-                    servo2Value -=5;
-                    tvServo2.setText(String.valueOf(servo2Value));
-                    try {
-                        onFragmentInteraction("p2d#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo3Value < servo3Max){
+                            servo3Value ++;
+                            tvServo3.setText(String.valueOf(servo3Value));
+                            try {
+                                onFragmentInteraction("p3u#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo3Up.setOnClickListener(new View.OnClickListener() {
+        servo3Down.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo3Value < servo3Max){
-                    servo3Value +=5;
-                    tvServo3.setText(String.valueOf(servo3Value));
-                    try {
-                        onFragmentInteraction("p3u#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo3Value > 0){
+                            servo3Value --;
+                            tvServo3.setText(String.valueOf(servo3Value));
+                            try {
+                                onFragmentInteraction("p3d#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo3Down.setOnClickListener(new View.OnClickListener() {
+        servo4Up.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo3Value > 0){
-                    servo3Value -=5;
-                    tvServo3.setText(String.valueOf(servo3Value));
-                    try {
-                        onFragmentInteraction("p3d#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo4Value < servo4Max){
+                            servo4Value ++;
+                            tvServo4Bar.setText(String.valueOf(servo4Value));
+                            servo4Bar.setProgress(servo4Value);
+                            try {
+                                onFragmentInteraction("p4u#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo4Up.setOnClickListener(new View.OnClickListener() {
+        servo4Down.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo4Value < servo4Max){
-                    servo4Value +=5;
-                    tvServo4Bar.setText(String.valueOf(servo4Value));
-                    servo4Bar.setProgress(servo4Value);
-                    try {
-                        onFragmentInteraction("p4u#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servo4Value > 0){
+                            servo4Value --;
+                            tvServo4Bar.setText(String.valueOf(servo4Value));
+                            servo4Bar.setProgress(servo4Value);
+                            try {
+                                onFragmentInteraction("p4d#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servo4Down.setOnClickListener(new View.OnClickListener() {
+        servoxUp.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servo4Value > 0){
-                    servo4Value -=5;
-                    tvServo4Bar.setText(String.valueOf(servo4Value));
-                    servo4Bar.setProgress(servo4Value);
-                    try {
-                        onFragmentInteraction("p4d#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servoxValue < servoxMax){
+                            servoxValue ++;
+                            tvServoxBar.setText(String.valueOf(servoxValue));
+                            servoxBar.setProgress(servoxValue);
+                            try {
+                                onFragmentInteraction("pxu#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
+                return false;
             }
         });
 
-        servoxUp.setOnClickListener(new View.OnClickListener() {
+        servoxDown.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(servoxValue < servoxMax){
-                    servoxValue +=5;
-                    tvServoxBar.setText(String.valueOf(servoxValue));
-                    servoxBar.setProgress(servoxValue);
-                    try {
-                        onFragmentInteraction("pxu#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(servoxValue > 0){
+                            servoxValue --;
+                            tvServoxBar.setText(String.valueOf(servoxValue));
+                            servoxBar.setProgress(servoxValue);
+                            try {
+                                onFragmentInteraction("pxd#");
+                                vibe.vibrate(25);
+                            }catch (Exception e){
+                                Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibe.vibrate(25);
+                        return true;
                 }
-            }
-        });
-
-        servoxDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(servoxValue > 0){
-                    servoxValue -=5;
-                    tvServoxBar.setText(String.valueOf(servoxValue));
-                    servoxBar.setProgress(servoxValue);
-                    try {
-                        onFragmentInteraction("pxd#");
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-                    }
-                }
+                return false;
             }
         });
 
@@ -478,12 +591,14 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                 if (progress == 10){
                     try {
                         onFragmentInteraction("x#");
+                        vibe.vibrate(25);
                     }catch (Exception e){
                         Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                     }
                 }else{
                     try {
                         onFragmentInteraction(progress+"#");
+                        vibe.vibrate(25);
                     }catch (Exception e){
                         Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                     }
@@ -509,6 +624,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
                 angelProgress = progress;
                 try {
                     onFragmentInteraction("a"+progress+"#");
+                    vibe.vibrate(25);
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
                 }
@@ -537,12 +653,12 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
         });
 
@@ -558,12 +674,12 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
         });
 
@@ -572,6 +688,10 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tvServoxBar.setText(String.valueOf(progress));
                 servoxValue = progress;
+                servo2Value = progress;
+                servo3Value = 200 - progress;
+                tvServo2.setText(servo2Value+"");
+                tvServo3.setText(servo3Value+"");
                 try{
                     onFragmentInteraction("p5$"+servoxValue+"#");
                 }catch (Exception e){}
@@ -579,12 +699,12 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                vibe.vibrate(10);
             }
         });
 
@@ -592,7 +712,7 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
             @Override
             public void onClick(View v) {
                 bluetoothStatusCheck();
-
+                vibe.vibrate(25);
                 if(btFlag){
                     manLayoutPar.width = 1450;
                     btFlag = false;
