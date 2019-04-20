@@ -26,9 +26,27 @@ NewPing sonar4(ultraTRIG4, ultraECHO4, max_distance);
 ///**************************************************///
 
 
+///***********Time Counters***************///
 unsigned long previousMillis = 0;
-const long interval = 500;           
+unsigned long forwardTime = 0;
+unsigned long leftTime = 0;
+unsigned long rightTime = 0;
 
+const long interval = 100;
+const long forwardInterval = 3000;
+const long turnInterval = 500;
+
+char movementFlag = 'f'; //forward = f ; turn = t ; forwardLeft = l ; forwardright = r;
+char turnFlag = 't'; //turn = t ; right = r ; left = l;
+///*********************************///
+
+///******Triggers******///
+boolean isManual = false;
+boolean isAuto = false;
+boolean isSearch = false;
+boolean isTracking = false;
+boolean isCatching = false;
+///******Triggers******///
 
 ///***Movement Motors***///
 int rb=11;
@@ -40,8 +58,8 @@ int motorAngel = 120;
 ///***End Movement Motors***///
 
 ///********Megnatis*********///
-int megnatis = 46;
-boolean isMegnatis = false;
+int magnet = 46;
+boolean magnetState = false;
 ///******End Megnatis*******///
 
 ///*********MSG*********///
@@ -101,10 +119,12 @@ void setup() {
   pinMode(ultraECHO4, INPUT);
   pinMode(ultraVCC4, OUTPUT);
   digitalWrite(ultraVCC2, HIGH);
+  digitalWrite(ultraVCC1, HIGH);
+  digitalWrite(ultraVCC3, HIGH);
 ///****************************///
 
-  pinMode(megnatis, OUTPUT);
-  digitalWrite(megnatis,LOW);
+  pinMode(magnet, OUTPUT);
+  digitalWrite(magnet,LOW);
 
   pwm.begin();
   pwm.setPWMFreq(60);
@@ -144,11 +164,18 @@ void setup() {
  *  *leftState{sl#}
  * **ServoPulse**
  *  *setPulseValue{pn$v#;n=pulseNumber[1,2,3,4];v=pulseValue}
- * ****
+ * **magnet**
+ *  *magnetSwitch(){mg#}
  */
 
 
 void loop() {
+/*
+  if(isAuto){
+  }else if(isManual){
+  }
+  
+  
   if(Serial3.available()){
     while(Serial3.available()){
       msg = Serial3.read();
@@ -166,8 +193,11 @@ void loop() {
   }
 
   
-  
-  check_front_distance();
+  */
+/*
+  motorSpeed = 120;
+  searchState();
+*/
 }
 
 
@@ -358,6 +388,8 @@ void checkCommands(){
         motorAngel = 120;
       else if(cmdValue == "a3")
         motorAngel = 180;
+      else if(cmdValue == "mg")
+        magnetSwitch();
     }else if(Length == 3){
       if(cmdValue == "p1u" && pulselen1 < pulselen1Max){
         pulselen1 += 2;
@@ -436,3 +468,77 @@ void Reset(){
   pwm.setPWM(s1, 0, pulselen1);
 }
 ///*******************End Servo Func********************///
+
+///********************Magnet Func**********************///
+void magnetSwitch(){
+    magnetState = !magnetState;
+    digitalWrite(magnet,magnetState);
+}
+///******************End Magnet Func********************///
+
+///********************Search State**********************///
+void searchState(){
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+     previousMillis = currentMillis;
+     int distancef = sonar2.ping_cm();
+     Stop();
+     if(distancef > 35 && movementFlag != 't'){
+        if(currentMillis - forwardTime >= forwardInterval){
+          int distancel = sonar1.ping_cm();
+          int distancer = sonar3.ping_cm();
+          if(distancel >= distancer && movementFlag == 'f' || movementFlag == 'l'){
+            if(movementFlag == 'f'){
+              leftTime = currentMillis;
+              movementFlag = 'l';
+            }
+            left();
+            if(currentMillis - leftTime >= turnInterval){
+              forwardTime = currentMillis;
+              movementFlag = 'f';
+            }
+          }else if(distancel < distancer && movementFlag == 'f' || movementFlag == 'r'){
+            if(movementFlag == 'f'){
+              rightTime = currentMillis;
+              movementFlag = 'r';
+            }
+            right();
+            if(currentMillis - rightTime >= turnInterval){
+              forwardTime = currentMillis;
+              movementFlag = 'f';
+            }
+          }
+        }else{
+          forward();
+          movementFlag = 'f';  
+        }
+     }else{
+        int distancel = sonar1.ping_cm();
+        int distancer = sonar3.ping_cm();
+        if(distancel >= distancer && turnFlag == 't' || turnFlag == 'l'){
+            if(turnFlag == 't'){
+              leftTime = currentMillis;
+              turnFlag = 'l';
+              movementFlag == 't';
+            }
+            left();
+            if(currentMillis - leftTime >= turnInterval){
+              movementFlag = 'f';
+              turnFlag = 't';
+            }
+        }else if(distancel < distancer && turnFlag == 't' || turnFlag == 'r'){
+            if(turnFlag == 't'){
+              rightTime = currentMillis;
+              turnFlag = 'r';
+              movementFlag == 't';
+            }
+            right();
+            if(currentMillis - rightTime >= turnInterval){
+              movementFlag = 'f';
+              turnFlag = 't';
+            }
+        }
+     }
+  }
+}
+///******************End Search State*******************///

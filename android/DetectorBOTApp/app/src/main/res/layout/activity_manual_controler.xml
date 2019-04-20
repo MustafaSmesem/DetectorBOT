@@ -467,6 +467,18 @@
             android:text="2"
             android:textAlignment="center" />
 
+        <ImageButton
+            android:id="@+id/btn_magnet"
+            android:layout_width="43dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/buttonsContainer"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="133dp"
+            android:layout_toEndOf="@+id/buttonsContainer"
+            android:background="@color/transparentColor"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/magnet_off" />
+
     </RelativeLayout>
 
     <ImageButton
