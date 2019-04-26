@@ -87,7 +87,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private ImageButton bluetoothBtn;
   boolean isBluetoothFragment = false;
 
-  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score , posLeft , posRight, posTop, posBottom;
+  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score ;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -101,10 +101,6 @@ public abstract class CameraActivity extends AppCompatActivity
     tv_positionY = findViewById(R.id.posY);
     tv_detectedLabel = findViewById(R.id.detected_label);
     tv_score = findViewById(R.id.score_value);
-    posLeft = findViewById(R.id.pos_left_value);
-    posBottom = findViewById(R.id.pos_bottom_value);
-    posRight = findViewById(R.id.pos_right_value);
-    posTop = findViewById(R.id.pos_top_value);
 
     if (hasPermission()) {
       setFragment();

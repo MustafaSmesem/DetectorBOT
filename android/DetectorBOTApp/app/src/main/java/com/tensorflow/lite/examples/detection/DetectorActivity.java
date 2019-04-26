@@ -287,10 +287,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                       tv_positionY.setText(""+positionY);
                       tv_detectedLabel.setText(""+detectedLabel);
                       tv_score.setText(scoreS+"%");
-                      posLeft.setText(""+pos[1]);
-                      posTop.setText(""+pos[0]);
-                      posRight.setText(""+pos[3]);
-                      posBottom.setText(""+pos[2]);
                   }
                 });
           }

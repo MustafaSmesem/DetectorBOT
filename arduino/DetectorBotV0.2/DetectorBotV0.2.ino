@@ -2,7 +2,7 @@
 #include <NewPing.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-///**************************************///
+///************End Libraries**************///
 
 
 ///*****************UltraSonic**********************///
@@ -23,10 +23,10 @@ NewPing sonar1(ultraTRIG1, ultraECHO1, max_distance);
 NewPing sonar2(ultraTRIG2, ultraECHO2, max_distance);
 NewPing sonar3(ultraTRIG3, ultraECHO3, max_distance);
 NewPing sonar4(ultraTRIG4, ultraECHO4, max_distance);
-///**************************************************///
+///****************End UltraSonic**********************///
 
 
-///***********Time Counters***************///
+///************Time Counters****************///
 unsigned long previousMillis = 0;
 unsigned long forwardTime = 0;
 unsigned long leftTime = 0;
@@ -35,18 +35,20 @@ unsigned long rightTime = 0;
 const long interval = 100;
 const long forwardInterval = 3000;
 const long turnInterval = 500;
+///**********End Time Counters*************///
 
+///********Triggers********///
 char movementFlag = 'f'; //forward = f ; turn = t ; forwardLeft = l ; forwardright = r;
 char turnFlag = 't'; //turn = t ; right = r ; left = l;
-///*********************************///
 
-///******Triggers******///
-boolean isManual = false;
 boolean isAuto = false;
 boolean isSearch = false;
+boolean isFind = false;
 boolean isTracking = false;
-boolean isCatching = false;
-///******Triggers******///
+boolean isInTarget = false;
+boolean isSmall = false;
+
+///******End Triggers******///
 
 ///***Movement Motors***///
 int rb=11;
@@ -55,6 +57,7 @@ int lb=9;
 int lf=8;
 int motorSpeed = 100;
 int motorAngel = 120;
+int turnSpeedInc = 30;
 ///***End Movement Motors***///
 
 ///********Megnatis*********///
@@ -68,7 +71,7 @@ String cmdValue="";
 boolean msgEnd = false;
 ///******End MSG********///
 
-///********Servos*********///
+///***********Servos************///
 #define pulselen1Max 550
 #define pulselen1Min 100
 #define pulselen1Rst 415
@@ -94,7 +97,7 @@ uint16_t pulselen3;
 uint16_t pulselen4;
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-///********End Servos*********///
+///***********End Servos************///
 
 void setup() {
   
@@ -170,34 +173,41 @@ void setup() {
 
 
 void loop() {
-/*
+
   if(isAuto){
-  }else if(isManual){
-  }
+    if(Serial3.available()){
+      while(Serial3.available()){
+        msg = Serial3.read();
+        if(msg == '#'){
+          msgEnd = true;
+          break;}
+        cmdValue += String(msg);
+      }  
+    }
+    if(msgEnd){
+      checkAutoCommands();   
+      msgEnd=false;
+      cmdValue="";  
+    }
+    searchState();
+  }else if(!isAuto){
+    if(Serial3.available()){
+      while(Serial3.available()){
+        msg = Serial3.read();
+        if(msg == '#'){
+          msgEnd = true;
+          break;}
+        cmdValue += String(msg);
+      }  
+    }
   
-  
-  if(Serial3.available()){
-    while(Serial3.available()){
-      msg = Serial3.read();
-      if(msg == '#'){
-        msgEnd = true;
-        break;}
-      cmdValue += String(msg);
-    }  
+    if(msgEnd){
+      checkCommands();   
+      msgEnd=false;
+      cmdValue="";  
+    }
   }
 
-  if(msgEnd){
-    checkCommands();   
-    msgEnd=false;
-    cmdValue="";  
-  }
-
-  
-  */
-/*
-  motorSpeed = 120;
-  searchState();
-*/
 }
 
 
@@ -305,7 +315,7 @@ void centerButton(){
 }
 
 int turnSpeed(){
-  int result = motorSpeed + 20;
+  int result = motorSpeed + turnSpeedInc;
   if(result >= 255)
     return 255;
   else
@@ -321,16 +331,16 @@ int angelSpeed(){
 }
 ///*****************END MOVEMENTS FUNCTIONS*****************///
 
-///***************Commands*********************///
+///***************Manual Commands*********************///
 void checkCommands(){
   int Length = cmdValue.length();
   if(Length == 1){
       if(cmdValue == "0")
         motorSpeed = 0;
       else if(cmdValue == "1")
-        motorSpeed = 80;
+        motorSpeed = 70;
       else if(cmdValue == "2")
-        motorSpeed = 90;
+        motorSpeed = 80;
       else if(cmdValue == "3")
         motorSpeed = 100;
       else if(cmdValue == "4")
@@ -360,19 +370,7 @@ void checkCommands(){
       else if(cmdValue == "c")
         centerButton();
     }else if(Length == 2){
-      if(cmdValue == "ss")
-        motorSpeed = 0;
-      else if(cmdValue == "sf")
-        motorSpeed = 80;
-      else if(cmdValue == "st")
-        motorSpeed = 0;
-      else if(cmdValue == "sl")
-        motorSpeed = 80;
-      else if(cmdValue == "dr")
-        check_right_distance();
-      else if(cmdValue == "dl")
-        check_left_distance();
-      else if(cmdValue == "lb")
+      if(cmdValue == "lb")
         leftBackward();
       else if(cmdValue == "lf")
         leftForward();
@@ -448,7 +446,120 @@ void checkCommands(){
       }
     }  
 }
-///******************End Commands*********************///
+///******************End Manual Commands*********************///
+
+///***************Auto Commands*********************///
+void checkAutoCommands(){
+  int Length = cmdValue.length();
+  if(Length == 1){
+      if(cmdValue == "0")
+        motorSpeed = 0;
+      else if(cmdValue == "1")
+        motorSpeed = 70;
+      else if(cmdValue == "2")
+        motorSpeed = 80;
+      else if(cmdValue == "3")
+        motorSpeed = 90;
+      else if(cmdValue == "4")
+        motorSpeed = 100;
+      else if(cmdValue == "5")
+        motorSpeed = 125;
+      else if(cmdValue == "6")
+        motorSpeed = 150;
+      else if(cmdValue == "7")
+        motorSpeed = 180;
+      else if(cmdValue == "8")
+        motorSpeed = 210;
+      else if(cmdValue == "9")
+        motorSpeed = 255;
+      else if(cmdValue == "l")
+        left();
+      else if(cmdValue == "s")
+        Stop();
+      else if(cmdValue == "r")
+        right();
+      else if(cmdValue == "f")
+        forward();
+      else if(cmdValue == "b")
+        backward();
+      else if(cmdValue == "c")
+        centerButton();
+    }else if(Length == 2){
+      if(cmdValue == "ss")
+        statesFlag = 's';
+      else if(cmdValue == "sf")
+        statesFlag = 'f';
+      else if(cmdValue == "st")
+        statesFlag = 't';
+      else if(cmdValue == "sl")
+        statesFlag = 's';
+      else if(cmdValue == "dr")
+        check_right_distance();
+      else if(cmdValue == "dl")
+        check_left_distance();
+      else if(cmdValue == "mg")
+        magnetSwitch();
+    }else if(Length == 3){
+      if(cmdValue == "p1u" && pulselen1 < pulselen1Max){
+        pulselen1 += 2;
+        pwm.setPWM(s1, 0, pulselen1);
+      }else if(cmdValue == "p1d" && pulselen1 > pulselen1Min){
+        pulselen1 -= 2;
+        pwm.setPWM(s1, 0, pulselen1);
+      }else if(cmdValue == "p2u" && pulselen2 < pulselen2Max){
+        pulselen2 += 2;
+        pwm.setPWM(s2, 0, pulselen2);
+      }else if(cmdValue == "p2d" && pulselen2 > pulselen2Min){
+        pulselen2 -= 2;
+        pwm.setPWM(s2, 0, pulselen2);
+      }else if(cmdValue == "p3d" && pulselen3 < pulselen3Max){
+        pulselen3 += 2;
+        pwm.setPWM(s3, 0, pulselen3);
+      }else if(cmdValue == "p3u" && pulselen3 > pulselen3Min){
+        pulselen3 -= 2;
+        pwm.setPWM(s3, 0, pulselen3);
+      }else if(cmdValue == "p4u" && pulselen4 < pulselen4Max){
+        pulselen4 += 1;
+        pwm.setPWM(s4, 0, pulselen4);
+      }else if(cmdValue == "p4d" && pulselen4 > pulselen4Min){
+        pulselen4 -= 1;
+        pwm.setPWM(s4, 0, pulselen4);
+      }else if(cmdValue == "pxu" && pulselen2 < pulselen2Max){
+        pulselen2 +=2;
+        pulselen3 -=2;
+        pwm.setPWM(s2, 0, pulselen2);
+        pwm.setPWM(s3, 0, pulselen3);
+      }else if(cmdValue == "pxd" && pulselen2 > pulselen2Min){
+        pulselen2 -=2;
+        pulselen3 +=2;
+        pwm.setPWM(s2, 0, pulselen2);
+        pwm.setPWM(s3, 0, pulselen3);
+      }
+    }else if(Length > 3){
+      if(cmdValue[0] == 'p'){
+        String pulseValueStr = "";
+        for(int i=0; i<Length-3;i++){
+          pulseValueStr += cmdValue[i+3];
+        }
+        int pulseValue = pulseValueStr.toInt();
+        if(cmdValue[1] == '1'){
+          pulselen1 = pulseValue*2+pulselen1Min;
+          pwm.setPWM(s1, 0, pulselen1);
+        }else if(cmdValue[1] == '4'){
+          pulselen4 = pulseValue+pulselen4Min;
+          pwm.setPWM(s4, 0, pulselen4);
+        }else if(cmdValue[1] == '5'){
+          pulselen2 = pulseValue*2+pulselen2Min;  
+          pulselen3 = 700 - pulselen2;
+          pwm.setPWM(s3, 0, pulselen3);
+          pwm.setPWM(s2, 0, pulselen2);
+        }  
+      }
+    }  
+}
+///******************End Auto Commands*********************///
+
+
 
 ///********************Servo Func**********************///
 void Reset(){
