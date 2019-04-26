@@ -47,6 +47,7 @@ boolean isFind = false;
 boolean isTracking = false;
 boolean isInTarget = false;
 boolean isSmall = false;
+boolean statesFlag = false;
 
 ///******End Triggers******///
 
@@ -83,7 +84,7 @@ boolean msgEnd = false;
 #define pulselen3Rst 525
 #define pulselen4Max 520
 #define pulselen4Min 270
-#define pulselen4Rst 280
+#define pulselen4Rst 370
 
 int s1 = 0;
 int s2 = 2;
@@ -173,7 +174,7 @@ void setup() {
 
 
 void loop() {
-
+/*
   if(isAuto){
     if(Serial3.available()){
       while(Serial3.available()){
@@ -207,7 +208,9 @@ void loop() {
       cmdValue="";  
     }
   }
-
+*/
+delay(5000);
+armSearch();
 }
 
 
@@ -650,6 +653,35 @@ void searchState(){
             }
         }
      }
+  }
+}
+
+void armSearchUpDown(){
+  servoWrite(s4,370,410);
+  servoWrite(s4,410,330);
+  servoWrite(s4,330,370);
+}
+
+void armSearch(){
+  armSearchUpDown();
+  servoWrite(s1,415,290);
+  armSearchUpDown();
+  servoWrite(s1,290,520);
+  armSearchUpDown();
+  servoWrite(s1,520,415);
+}
+
+void servoWrite(int n , int s , int e){
+  if(s<e){
+    for(int i = s ; i <= e ; i++){
+      pwm.setPWM(n, 0, i);
+      delay(12);
+    }  
+  }else{
+    for(int i = s ; i >= e ; i--){
+      pwm.setPWM(n, 0, i);
+      delay(12);
+    }
   }
 }
 ///******************End Search State*******************///
