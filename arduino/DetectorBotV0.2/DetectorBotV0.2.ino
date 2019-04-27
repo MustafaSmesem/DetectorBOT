@@ -4,7 +4,8 @@
 #include <Adafruit_PWMServoDriver.h>
 ///************End Libraries**************///
 
-
+int labelCounter = 0;
+int led = 13;
 ///*****************UltraSonic**********************///
 #define ultraVCC1 45
 #define ultraTRIG1 47
@@ -23,6 +24,8 @@ NewPing sonar1(ultraTRIG1, ultraECHO1, max_distance);
 NewPing sonar2(ultraTRIG2, ultraECHO2, max_distance);
 NewPing sonar3(ultraTRIG3, ultraECHO3, max_distance);
 NewPing sonar4(ultraTRIG4, ultraECHO4, max_distance);
+
+int minDistance = 25;
 ///****************End UltraSonic**********************///
 
 
@@ -47,8 +50,9 @@ boolean isFind = false;
 boolean isTracking = false;
 boolean isInTarget = false;
 boolean isSmall = false;
-boolean statesFlag = false;
+char statesFlag = 's';
 
+char robotState = 's';
 ///******End Triggers******///
 
 ///***Movement Motors***///
@@ -97,11 +101,36 @@ uint16_t pulselen2;
 uint16_t pulselen3;
 uint16_t pulselen4;
 
+int armSearchSpeed = 12;
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 ///***********End Servos************///
 
+///**************Time Variables*******************///
+const int forwardCircleDelay = 7500;
+unsigned long forwardCircleMillis = 0;
+boolean forwardCircleFlag = true;
+const int circleDelay = 1500;
+unsigned long circleMillis = 0;
+boolean circleFlag = true;
+
+char searchStateFlag = 'a';
+int circleFlipFlag = 0;
+
+///************End Time Variables*****************///
+
+///***************///
+String detectedLabel = "";
+///**************///
 void setup() {
-  
+  pinMode(led, OUTPUT);
+  digitalWrite(led,HIGH);
+  delay(1000);
+  digitalWrite(led,LOW);
+  delay(1000);
+  digitalWrite(led,HIGH);
+  delay(1000);
+  digitalWrite(led,LOW);
 ///*******Motorlar*********///
   pinMode(rf, OUTPUT);
   pinMode(rb, OUTPUT);
@@ -136,6 +165,7 @@ void setup() {
   Serial3.begin(9600);
   delay(3000);
   Reset();  
+  motorSpeed = 80;
 }
 
 /***DetectorBOT messages protocol***
@@ -170,47 +200,16 @@ void setup() {
  *  *setPulseValue{pn$v#;n=pulseNumber[1,2,3,4];v=pulseValue}
  * **magnet**
  *  *magnetSwitch(){mg#}
+ * **Modes**
+ *  *autoMode{A#}
+ *  *ManualMode{M#}
  */
 
 
 void loop() {
-/*
-  if(isAuto){
-    if(Serial3.available()){
-      while(Serial3.available()){
-        msg = Serial3.read();
-        if(msg == '#'){
-          msgEnd = true;
-          break;}
-        cmdValue += String(msg);
-      }  
-    }
-    if(msgEnd){
-      checkAutoCommands();   
-      msgEnd=false;
-      cmdValue="";  
-    }
-    searchState();
-  }else if(!isAuto){
-    if(Serial3.available()){
-      while(Serial3.available()){
-        msg = Serial3.read();
-        if(msg == '#'){
-          msgEnd = true;
-          break;}
-        cmdValue += String(msg);
-      }  
-    }
-  
-    if(msgEnd){
-      checkCommands();   
-      msgEnd=false;
-      cmdValue="";  
-    }
-  }
-*/
-delay(5000);
-armSearch();
+
+  checkBluetoothMsg(isAuto);
+
 }
 
 
@@ -372,6 +371,10 @@ void checkCommands(){
         backward();
       else if(cmdValue == "c")
         centerButton();
+      else if(cmdValue == "A")
+        isAuto = true;
+      else if(cmdValue == "M")
+        isAuto = false;
     }else if(Length == 2){
       if(cmdValue == "lb")
         leftBackward();
@@ -487,6 +490,10 @@ void checkAutoCommands(){
         backward();
       else if(cmdValue == "c")
         centerButton();
+      else if(cmdValue == "A")
+        isAuto = true;
+      else if(cmdValue == "M")
+        isAuto = false;
     }else if(Length == 2){
       if(cmdValue == "ss")
         statesFlag = 's';
@@ -557,6 +564,15 @@ void checkAutoCommands(){
           pwm.setPWM(s3, 0, pulselen3);
           pwm.setPWM(s2, 0, pulselen2);
         }  
+      }else if(cmdValue[0] == 'l'){
+        String label = "";
+        for(int i=0; i<Length-2;i++){
+          label += cmdValue[i+2];
+        }
+        detectedLabel = label;
+        labelCounter++;
+        Serial.print(labelCounter);
+        Serial.println(detectedLabel);
       }
     }  
 }
@@ -591,13 +607,14 @@ void magnetSwitch(){
 ///******************End Magnet Func********************///
 
 ///********************Search State**********************///
+/*
 void searchState(){
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
      previousMillis = currentMillis;
      int distancef = sonar2.ping_cm();
      Stop();
-     if(distancef > 35 && movementFlag != 't'){
+     if(distancef > minDistance && movementFlag != 't'){
         if(currentMillis - forwardTime >= forwardInterval){
           int distancel = sonar1.ping_cm();
           int distancer = sonar3.ping_cm();
@@ -655,33 +672,145 @@ void searchState(){
      }
   }
 }
-
+*/
+void searchState(){
+  if(searchStateFlag == 'a'){
+    int distance = sonar2.ping_cm();
+    if( distance < minDistance ){}
+    else armSearch();
+    if(circleFlipFlag == 0){
+      int distancel = sonar1.ping_cm();
+      int distancer = sonar3.ping_cm();
+      if(distancer > distancel)
+        searchStateFlag = 'r';
+      else
+        searchStateFlag = 'l';
+    }else
+      searchStateFlag = 'f';
+  }else if(searchStateFlag == 'r'){
+    rightCircle();
+    if(circleFlipFlag == 1)
+      searchStateFlag = 'a';
+  }else if(searchStateFlag == 'l'){
+    leftCircle();
+    if(circleFlipFlag == 1)
+      searchStateFlag = 'a';
+  }else if(searchStateFlag == 'f'){
+    forwardCircle();
+    if(circleFlipFlag == 0)
+      searchStateFlag = 'a';
+  }
+  
+}
 void armSearchUpDown(){
-  servoWrite(s4,370,410);
-  servoWrite(s4,410,330);
-  servoWrite(s4,330,370);
+  servoWrite(s4,370,400);
+  servoWrite(s4,400,340);
+  servoWrite(s4,340,370);
 }
 
 void armSearch(){
   armSearchUpDown();
-  servoWrite(s1,415,290);
-  armSearchUpDown();
-  servoWrite(s1,290,520);
-  armSearchUpDown();
-  servoWrite(s1,520,415);
+  servoWrite(s1,415,300);
+  //armSearchUpDown();
+  servoWrite(s1,300,510);
+  //armSearchUpDown();
+  servoWrite(s1,510,415);
 }
 
 void servoWrite(int n , int s , int e){
   if(s<e){
     for(int i = s ; i <= e ; i++){
       pwm.setPWM(n, 0, i);
-      delay(12);
+      delay(armSearchSpeed);
     }  
   }else{
     for(int i = s ; i >= e ; i--){
       pwm.setPWM(n, 0, i);
-      delay(12);
+      delay(armSearchSpeed);
     }
   }
 }
+
+void rightCircle(){
+  if(circleFlag){
+    circleFlag=false;
+    circleMillis=millis();
+  }
+  if(millis() - circleMillis >= circleDelay){
+    circleFlag=true;
+    circleFlipFlag++;
+    Stop();
+  }else{
+    right();
+  }
+}
+
+void leftCircle(){
+  if(circleFlag){
+    circleFlag=false;
+    circleMillis=millis();
+  }
+  if(millis() - circleMillis >= circleDelay){
+    circleFlag=true;
+    circleFlipFlag++;
+    Stop();
+  }else{
+    left();
+  }
+}
+
+void forwardCircle(){
+  if(forwardCircleFlag){
+    forwardCircleFlag=false;
+    forwardCircleMillis=millis();
+  }
+  if(millis() - forwardCircleMillis >= forwardCircleDelay){
+    forwardCircleFlag=true;
+    circleFlipFlag = 0;
+    Stop(); 
+  }else{
+    int distance = sonar2.ping_cm();
+    if( distance < minDistance )
+      Stop();
+    else
+      forward();
+  }
+}
+
+
 ///******************End Search State*******************///
+
+void checkBluetoothMsg(boolean controllerMode){
+   if(Serial3.available()){
+      while(Serial3.available()){
+        msg = Serial3.read();
+        if(msg == '#'){
+          msgEnd = true;
+          break;}
+        cmdValue += String(msg);
+      }  
+    }
+  
+    if(msgEnd){
+      if(controllerMode){ 
+        checkAutoCommands();
+        switch(statesFlag){
+          case 's':
+            digitalWrite(led,LOW);
+            Serial.println("SearchState");
+            searchState();
+            break;
+          case 'f':
+            digitalWrite(led,HIGH);
+            Serial.println("FindeState");
+            break;
+          default:
+            Serial.println(statesFlag);
+            break;  
+        }
+      }else
+        checkCommands();
+      msgEnd=false;
+      cmdValue="";  
+    }    
+}

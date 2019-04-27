@@ -62,7 +62,7 @@ public class BluetoothFragment extends Fragment {
     private ImageButton btnrefresh, btnVisible;
     private TextView tvFoundedBtName, tvFoundedBtAddress;
     private ListView lvBluetooth;
-    private Switch btTurn;
+    private Switch btTurn , stAuto;
 
     public boolean status = false;
     private List<String> btNames;
@@ -129,6 +129,7 @@ public class BluetoothFragment extends Fragment {
         tvFoundedBtName = view.findViewById(R.id.tv_founded_bt_name);
         vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         btTurn = view.findViewById(R.id.switchBt);
+        stAuto = view.findViewById(R.id.switchBt_auto);
         checkBT();
 
         mHandler = new Handler(){
@@ -196,6 +197,31 @@ public class BluetoothFragment extends Fragment {
                 }
             });
         }
+
+        stAuto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    if(myBluetooth.isEnabled() && mConnectedThread != null) {
+                        mConnectedThread.write("A#");
+                        Toast.makeText(getContext(), "Automatic mode is enabled", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        stAuto.setChecked(false);
+                        Toast.makeText(getContext(), "Automatic mode cannot be enabled", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    if(myBluetooth.isEnabled() && mConnectedThread != null) {
+                        mConnectedThread.write("B#");
+                        Toast.makeText(getContext(), "Manual mode is enabled", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        stAuto.setChecked(false);
+                        Toast.makeText(getContext(), "Manual mode cannot be enabled", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
 
         return view;
     }

@@ -53,11 +53,23 @@
         android:id="@+id/tv_founded_bt_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/switchBt"
+        android:layout_below="@+id/switchBt_auto"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="26dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="12dp"
         android:text="Device Statu:"
+        android:textStyle="bold" />
+
+    <Switch
+        android:id="@+id/switchBt_auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/switchBt"
+        android:layout_alignStart="@+id/switchBt"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/auto_mode"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold" />
 
     <TextView

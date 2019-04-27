@@ -16,7 +16,7 @@
 
 package com.tensorflow.lite.examples.detection;
 
-import android.content.Context;
+//import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -24,12 +24,12 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.PorterDuff;
+//import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.net.Uri;
-import android.os.SystemClock;
+//import android.net.Uri;
+//import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -75,16 +75,17 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private Classifier detector;
 
-  private boolean bluetoothSendStatus = true;
+  private boolean isSearchState = false;
 
   private float positionX = 0, positionY = 0;
+  private boolean isLabel = false;
   private String detectedLabel="";
   private float score=0;
   private float[] pos = new float[4];
   DecimalFormat df = new DecimalFormat("##.##");
   String scoreS;
 
-  private long lastProcessingTimeMs;
+  //private long lastProcessingTimeMs;
   private Bitmap rgbFrameBitmap = null;
   private Bitmap croppedBitmap = null;
   private Bitmap cropCopyBitmap = null;
@@ -208,9 +209,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
           @Override
           public void run() {
             LOGGER.i("Running detection on image " + currTimestamp);
-            final long startTime = SystemClock.uptimeMillis();
+            //final long startTime = SystemClock.uptimeMillis();
             final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
-            lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+            //lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
             cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
             final Canvas canvas = new Canvas(cropCopyBitmap);
@@ -236,6 +237,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   positionX = location.centerX();
                   positionY = location.centerY();
                   detectedLabel = result.getTitle();
+
                   score = result.getConfidence();
                   score *= 100;
                   scoreS = df.format(score);
@@ -244,7 +246,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   pos[3] = location.right;
                   pos[2] = location.bottom;
 
-
+/*
                   try {
                     if (positionX < 200 || positionY < 120 || positionY > 160){
                       onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
@@ -254,12 +256,19 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                       onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
                       onFragmentInteraction("/#");
                     }
-                    bluetoothSendStatus = true;
                   }catch (Exception e){
-                    if(bluetoothSendStatus){
-                      Toast.makeText(getApplicationContext(),"Please connect to DetectorBOT",Toast.LENGTH_SHORT).show();
-                      bluetoothSendStatus = false;
-                    }
+
+                  }
+*/
+
+                  try {
+                    isSearchState = false;
+                    onFragmentInteraction("sf#");
+                    if(!isLabel)
+                      onFragmentInteraction("l$"+detectedLabel+"#");
+
+                  }catch (Exception e){
+
                   }
 
                   canvas.drawPoint(positionX , positionY , paint);
@@ -268,6 +277,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                   result.setLocation(location);
                   mappedRecognitions.add(result);
+
+              }else{
+                try {
+                  if(!isSearchState){
+                    onFragmentInteraction("ss#");
+                    isSearchState = true;
+                  }
+                }catch (Exception e){
+
+                }
               }
             }
 
