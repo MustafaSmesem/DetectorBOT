@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Handler;
 
 import org.tensorflow.lite.examples.detection.R;
 
@@ -65,7 +66,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.98f;
+  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.90f;
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -102,6 +103,65 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private byte[] luminanceCopy;
 
   private BorderedText borderedText;
+
+  /*** Servos ***/
+
+  private final int servo4Reset = 390;
+  private final int servo4Max = 520;
+  private final int servo4Min = 270;
+  private int servo4Value = servo4Reset;
+
+  private final int servo1Reset = 415;
+  private final int servo1Max = 550;
+  private final int servo1Min = 100;
+  private int servo1Value = servo1Reset;
+
+  /*** End Servos ***/
+
+
+  /*** SearchState Variables  ***/
+
+    /***
+     * searchTypeFlag define the search method{armSearch:true \\ motorSearch:false}
+        ** Arm
+          * searchArmType define the arm search movementDirection{armUp:'u' || armDown:'d' \\ armRight:'r' \\ armLeft:'l'}
+        ** Motor
+          * searchMotorFlag define the movementType{turn:true \\ straight:false}
+     ***/
+
+    private boolean searchTypeFlag = true;
+
+    /*** Arm ***/
+    private char searchArmType = 'u';
+    private int servoWriteDelay = 20;
+
+    private final int servo4SearchUp = 360;
+    private final int servo4SearchDown = 400;
+    private int servo4SearchSpeed = 5;
+
+    private final int servo1SearchRight = 320;
+    private final int servo1SearchLeft = 495;
+    private int servo1SearchSpeed = 8;
+
+    /*** End Arm ***/
+
+    /*** Motors ***/
+    private boolean searchMotorFlag = true;
+    private boolean turnMotorFlag = true;
+    private boolean straightMotorFlag = true;
+    private int motorSpeed = 80;
+
+    private int movementCounter = 0;
+    private int turnAngle = 8;
+    private int forwardDistance = 30;
+
+    /*** End Motors ***/
+
+    /*** Distance ***/
+
+    /*** End Distance ***/
+  /*** End SearchState Variables  ***/
+
 
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
@@ -208,6 +268,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         new Runnable() {
           @Override
           public void run() {
+            if(isChanged){
+              if (isAuto){
+                try {
+                  onFragmentInteraction("A#");
+                }catch (Exception e){      }
+              }else{
+                try {
+                  onFragmentInteraction("M#");
+                }catch (Exception e){      }
+              }
+              isChanged = false;
+            }
             LOGGER.i("Running detection on image " + currTimestamp);
             //final long startTime = SystemClock.uptimeMillis();
             final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
@@ -233,60 +305,31 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             for (final Classifier.Recognition result : results) {
               final RectF location = result.getLocation();
               if (location != null && result.getConfidence() >= minimumConfidence) {
+                motorStop();
+                positionX = location.centerX();
+                positionY = location.centerY();
+                detectedLabel = result.getTitle();
 
-                  positionX = location.centerX();
-                  positionY = location.centerY();
-                  detectedLabel = result.getTitle();
+                score = result.getConfidence();
+                score *= 100;
+                scoreS = df.format(score);
 
-                  score = result.getConfidence();
-                  score *= 100;
-                  scoreS = df.format(score);
-                  pos[1] = location.left;
-                  pos[0] = location.top;
-                  pos[3] = location.right;
-                  pos[2] = location.bottom;
+                /***/
+                    pos[1] = location.left;
+                    pos[0] = location.top;
+                    pos[3] = location.right;
+                    pos[2] = location.bottom;
+                /***/
 
-/*
-                  try {
-                    if (positionX < 200 || positionY < 120 || positionY > 160){
-                      onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
-                      onFragmentInteraction("*#");
-
-                    }else{
-                      onFragmentInteraction(detectedLabel+" ("+scoreS+"%)");
-                      onFragmentInteraction("/#");
-                    }
-                  }catch (Exception e){
-
-                  }
-*/
-
-                  try {
-                    isSearchState = false;
-                    onFragmentInteraction("sf#");
-                    if(!isLabel)
-                      onFragmentInteraction("l$"+detectedLabel+"#");
-
-                  }catch (Exception e){
-
-                  }
-
-                  canvas.drawPoint(positionX , positionY , paint);
-
-                  cropToFrameTransform.mapRect(location);
-
-                  result.setLocation(location);
-                  mappedRecognitions.add(result);
+                canvas.drawPoint(positionX , positionY , paint);
+                cropToFrameTransform.mapRect(location);
+                result.setLocation(location);
+                mappedRecognitions.add(result);
 
               }else{
-                try {
-                  if(!isSearchState){
-                    onFragmentInteraction("ss#");
-                    isSearchState = true;
-                  }
-                }catch (Exception e){
 
-                }
+                if(isAuto)
+                  searchState();
               }
             }
 
@@ -299,17 +342,104 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 new Runnable() {
                   @Override
                   public void run() {
-                    //showFrameInfo(previewWidth + "x" + previewHeight);
-                    //showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-                    //showInference(lastProcessingTimeMs + "ms");
                       tv_positionX.setText(""+positionX);
                       tv_positionY.setText(""+positionY);
                       tv_detectedLabel.setText(""+detectedLabel);
                       tv_score.setText(scoreS+"%");
+                      tv_object_center.setText("L: "+pos[1]+" ,R: "+pos[3]+" ,T: "+pos[0]+" ,B: "+pos[2]);
                   }
                 });
           }
         });
+  }
+
+
+  private void searchState() {
+    if(searchTypeFlag)
+      armCheck();
+    else
+      motorCheck();
+  }
+
+  private void motorCheck() {
+    if (searchMotorFlag){
+      try {
+        onFragmentInteraction("t#");
+        movementCounter++;
+        if (movementCounter >= turnAngle){
+          searchMotorFlag = false;
+          searchTypeFlag = true;
+          movementCounter = 0;
+          motorStop();
+        }
+      }catch (Exception e){      }
+    }else{
+      try {
+        onFragmentInteraction("g#");
+        movementCounter++;
+        if (movementCounter >= forwardDistance){
+          searchMotorFlag = true;
+          searchTypeFlag = true;
+          movementCounter = 0;
+          motorStop();
+        }
+      }catch (Exception e){      }
+    }
+  }
+
+  private void armCheck() {
+    if (searchArmType == 'u'){
+      servo4Value -= servo4SearchSpeed;
+      try {
+        onFragmentInteraction("s4u#");
+      }catch (Exception e){      }
+      if (servo4Value <= servo4SearchUp)
+        searchArmType = 'd';
+    }else if (searchArmType == 'd'){
+      servo4Value += servo4SearchSpeed;
+      try {
+        onFragmentInteraction("s4d#");
+      }catch (Exception e){      }
+      if (servo4Value >= servo4SearchDown)
+        searchArmType = '4';
+    }else if (searchArmType == '4'){
+      servo4Value -= servo4SearchSpeed;
+      try {
+        onFragmentInteraction("s4u#");
+      }catch (Exception e){      }
+      if (servo4Value <= servo4Reset)
+        searchArmType = 'r';
+    }
+
+
+    else if (searchArmType == 'r'){
+      try {
+        onFragmentInteraction("s1r#");
+        servo1Value -= servo1SearchSpeed;
+      }catch (Exception e){      }
+      if (servo1Value <= servo1SearchRight)
+        searchArmType = 'l';
+    }else if (searchArmType == 'l'){
+      try {
+        onFragmentInteraction("s1l#");
+        servo1Value += servo1SearchSpeed;
+      }catch (Exception e){      }
+      if (servo1Value >= servo1SearchLeft)
+        searchArmType = '1';
+    }else if (searchArmType == '1'){
+      try {
+        onFragmentInteraction("s1R#");
+        servo1Value = servo1Reset;
+        searchArmType = 'u';
+        searchTypeFlag = false;
+      }catch (Exception e){      }
+    }
+  }
+
+  void motorStop(){
+    try {
+      onFragmentInteraction("s#");
+    }catch (Exception e){      }
   }
 
   @Override
@@ -355,6 +485,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   protected void setNumThreads(final int numThreads) {
     runInBackground(() -> detector.setNumThreads(numThreads));
   }
+
 
 
   @Override

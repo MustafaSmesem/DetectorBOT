@@ -57,7 +57,7 @@ public class MultiBoxTracker {
     Color.GREEN,
     Color.RED,
     Color.YELLOW,
-    Color.MAGENTA,
+    Color.TRANSPARENT,
     Color.BLUE,
     Color.parseColor("#55FF55"),
     Color.parseColor("#FFA500"),

@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -25,7 +24,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.os.Bundle;
 import org.tensorflow.lite.examples.detection.R;
 
 import java.util.List;
@@ -60,7 +58,7 @@ public class BluetoothFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private ImageButton btnrefresh, btnVisible;
-    private TextView tvFoundedBtName, tvFoundedBtAddress;
+    private TextView tvFoundedBtName, tv_info ;
     private ListView lvBluetooth;
     private Switch btTurn , stAuto;
 
@@ -82,6 +80,8 @@ public class BluetoothFragment extends Fragment {
     private final static int REQUEST_ENABLE_BT = 1; // used to identify adding bluetooth names
     private final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
     private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
+
+    private String newText="";
 
     public BluetoothFragment() {
         // Required empty public constructor
@@ -125,7 +125,7 @@ public class BluetoothFragment extends Fragment {
         lvBluetooth.setOnItemClickListener(mDeviceClickListener);
         btnVisible = view.findViewById(R.id.ib_visible);
         btnrefresh = view.findViewById(R.id.ib_refresh);
-        tvFoundedBtAddress = view.findViewById(R.id.tv_founded_bt_adress);
+        tv_info = view.findViewById(R.id.tv_forward_distance);
         tvFoundedBtName = view.findViewById(R.id.tv_founded_bt_name);
         vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         btTurn = view.findViewById(R.id.switchBt);
@@ -141,13 +141,14 @@ public class BluetoothFragment extends Fragment {
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    tvFoundedBtAddress.setText("Distance: "+ readMessage);
+
+                    tv_info.setText("Forward: "+readMessage);
+
                 }
 
                 if(msg.what == CONNECTING_STATUS){
                     if(msg.arg1 == 1){
                         tvFoundedBtName.setText("Device: " + (String)(msg.obj));
-                        sendMsg("-#");
                         status = true;
                     }
                     else {
@@ -198,31 +199,6 @@ public class BluetoothFragment extends Fragment {
             });
         }
 
-        stAuto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    if(myBluetooth.isEnabled() && mConnectedThread != null) {
-                        mConnectedThread.write("A#");
-                        Toast.makeText(getContext(), "Automatic mode is enabled", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        stAuto.setChecked(false);
-                        Toast.makeText(getContext(), "Automatic mode cannot be enabled", Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    if(myBluetooth.isEnabled() && mConnectedThread != null) {
-                        mConnectedThread.write("B#");
-                        Toast.makeText(getContext(), "Manual mode is enabled", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        stAuto.setChecked(false);
-                        Toast.makeText(getContext(), "Manual mode cannot be enabled", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-
         return view;
     }
 
@@ -231,6 +207,7 @@ public class BluetoothFragment extends Fragment {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             tvFoundedBtName.setText("Bluetooth enabled");
+            tv_info.setText("Read buffer:");
             Toast.makeText(getContext(),"Bluetooth turned on",Toast.LENGTH_SHORT).show();
 
         }
@@ -242,7 +219,7 @@ public class BluetoothFragment extends Fragment {
     private void bluetoothOff(){
         sendMsg("!#");
         myBluetooth.disable(); // turn off
-        tvFoundedBtAddress.setText("Bluetooth disabled");
+        tv_info.setText("Bluetooth disabled");
         Toast.makeText(getContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();
     }
 

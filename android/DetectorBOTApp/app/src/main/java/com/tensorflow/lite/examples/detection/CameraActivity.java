@@ -45,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,16 +80,18 @@ public abstract class CameraActivity extends AppCompatActivity
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
 
+  public boolean isAuto=false;
+  public boolean isChanged = false;
+  private Switch stAuto;
 
-  /***
-   *Bluetooth variables
-   */
+
+  /** Bluetooth variables **/
   private BluetoothAdapter myBT;
   private ImageButton bluetoothBtn;
   boolean isBluetoothFragment = false;
 
-  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score ;
-
+  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score, tv_object_center ;
+  /** End Bluetooth variables **/
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -101,6 +104,34 @@ public abstract class CameraActivity extends AppCompatActivity
     tv_positionY = findViewById(R.id.posY);
     tv_detectedLabel = findViewById(R.id.detected_label);
     tv_score = findViewById(R.id.score_value);
+    stAuto = findViewById(R.id.switchBt_auto);
+    tv_object_center = findViewById(R.id.object_center);
+
+    stAuto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(isChecked){
+          isAuto = true;
+          isChanged = true;
+          Handler handler = new Handler();
+          Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+              WindowManager.LayoutParams lp = getWindow().getAttributes();
+              lp.screenBrightness = 0.1f;
+              getWindow().setAttributes(lp);
+            }
+          };
+          handler.postDelayed(runnable , 2000);
+        }else{
+          isAuto = false;
+          isChanged = true;
+          WindowManager.LayoutParams lp = getWindow().getAttributes();
+          lp.screenBrightness = 0.8f;
+          getWindow().setAttributes(lp);
+        }
+      }
+    });
 
     if (hasPermission()) {
       setFragment();
@@ -462,7 +493,6 @@ public abstract class CameraActivity extends AppCompatActivity
       else
           bluetoothBtn.setImageResource(R.drawable.bluetooth_off);
   }
-
 
   protected abstract void processImage();
 
