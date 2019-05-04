@@ -18,7 +18,6 @@ package com.tensorflow.lite.examples.detection;
 
 import android.Manifest;
 import android.app.Fragment;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -35,18 +34,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Size;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tensorflow.lite.examples.detection.env.ImageUtils;
@@ -61,6 +60,7 @@ public abstract class CameraActivity extends AppCompatActivity
         Camera.PreviewCallback,
         CompoundButton.OnCheckedChangeListener,
         View.OnClickListener,
+        ManualControllerFragment.OnFragmentSendListener,
         BluetoothFragment.OnFragmentInteractionListener {
   private static final Logger LOGGER = new Logger();
 
@@ -79,19 +79,24 @@ public abstract class CameraActivity extends AppCompatActivity
   private int yRowStride;
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
-
   public boolean isAuto=false;
   public boolean isChanged = false;
-  private Switch stAuto;
+  public Switch stAuto;
+  private ImageButton ibtnBrightness;
+  private boolean brightnessState = false;
+  private Fragment fragment;
+  private ManualControllerFragment manFragment;
+  protected String bluetoothFragmentTag="";
 
+  private int[] tabIcons = {
+          R.drawable.infor_icon,
+          R.drawable.settings_icon,
+          R.drawable.bluetooth_icon
+  };
+  private ViewPager mViewPager;
+  private TabLayout mTabLayout;
+  private TabsAccessorAdapter mTabsAccessorAdapter;
 
-  /** Bluetooth variables **/
-  private BluetoothAdapter myBT;
-  private ImageButton bluetoothBtn;
-  boolean isBluetoothFragment = false;
-
-  public TextView tv_positionX, tv_positionY, tv_detectedLabel, tv_score, tv_object_center ;
-  /** End Bluetooth variables **/
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -100,38 +105,36 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.activity_camera);
 
-    tv_positionX = findViewById(R.id.posX);
-    tv_positionY = findViewById(R.id.posY);
-    tv_detectedLabel = findViewById(R.id.detected_label);
-    tv_score = findViewById(R.id.score_value);
-    stAuto = findViewById(R.id.switchBt_auto);
-    tv_object_center = findViewById(R.id.object_center);
+    mViewPager = findViewById(R.id.toolbar_tabs_pager);
+    mTabsAccessorAdapter = new TabsAccessorAdapter(getSupportFragmentManager());
+    mViewPager.setAdapter(mTabsAccessorAdapter);
 
-    stAuto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    mTabLayout = findViewById(R.id.toolbar_tabs);
+    mTabLayout.setupWithViewPager(mViewPager);
+    mTabLayout.getTabAt(0).setIcon(tabIcons[0]);
+    mTabLayout.getTabAt(1).setIcon(tabIcons[1]);
+    mTabLayout.getTabAt(2).setIcon(tabIcons[2]);
+    bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
+
+    ibtnBrightness = findViewById(R.id.brightness_ibtn);
+    ibtnBrightness.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(isChecked){
-          isAuto = true;
-          isChanged = true;
-          Handler handler = new Handler();
-          Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-              WindowManager.LayoutParams lp = getWindow().getAttributes();
-              lp.screenBrightness = 0.1f;
-              getWindow().setAttributes(lp);
-            }
-          };
-          handler.postDelayed(runnable , 2000);
-        }else{
-          isAuto = false;
-          isChanged = true;
+      public void onClick(View v) {
+        brightnessState = !brightnessState;
+        if (brightnessState){
           WindowManager.LayoutParams lp = getWindow().getAttributes();
-          lp.screenBrightness = 0.8f;
+          lp.screenBrightness = 0.1f;
           getWindow().setAttributes(lp);
+          ibtnBrightness.setImageResource(R.drawable.low_brightness);
+        }else{
+          WindowManager.LayoutParams lp = getWindow().getAttributes();
+          lp.screenBrightness = 1.0f;
+          getWindow().setAttributes(lp);
+          ibtnBrightness.setImageResource(R.drawable.high_brightness);
         }
       }
     });
+
 
     if (hasPermission()) {
       setFragment();
@@ -139,34 +142,33 @@ public abstract class CameraActivity extends AppCompatActivity
       requestPermission();
     }
 
-    myBT = BluetoothAdapter.getDefaultAdapter();
-    bluetoothBtn = findViewById(R.id.btn_bluetooth);
-    bluetoothBtn.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-              bluetoothStatusCheck();
-              BluetoothFragment fragment1 = new BluetoothFragment();
-              InfoFragment fragment2 = new InfoFragment();
 
-              FragmentManager fm = getSupportFragmentManager();
-              FragmentTransaction ft = fm.beginTransaction();
-              if(!isBluetoothFragment){
-                  isBluetoothFragment=true;
-                  ft.setCustomAnimations(android.R.anim.fade_in , android.R.anim.fade_out);
-                  ft.addToBackStack("data");
-                  ft.replace(R.id.fragments_container , fragment1 , "bluetoothFragment").commit();
-              }else{
-                  isBluetoothFragment=false;
-                  ft.setCustomAnimations(android.R.anim.fade_in , android.R.anim.fade_out);
-                  ft.replace(R.id.fragments_container, fragment2 , "infoFragment").commit();
-              }
-          }
-     });
-    /***
-        BluetoothFragment fragment1 = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag("bluetoothFragment");
-        fragment1.sendMsg("1");
-    ***/
+
+    manFragment = new ManualControllerFragment();
+    getSupportFragmentManager().beginTransaction().add(R.id.container, manFragment , "manualFragment").commit();
+    stAuto = findViewById(R.id.switchBt_auto);
+    stAuto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(isChecked){
+          isAuto = true;
+          stAuto.setText(R.string.auto_mode);
+          getFragmentManager().beginTransaction().replace(R.id.container, fragment , "autoFragment").commit();
+          resetApp();
+          isChanged = true;
+        }else{
+          isAuto = false;
+          isChanged = true;
+          stAuto.setText(R.string.manual_mode);
+          getSupportFragmentManager().beginTransaction().replace(R.id.container, manFragment , "manualFragment").commit();
+          clearFragment();
+          resetApp();
+        }
+      }
+    });
   }
+
+  protected abstract void resetApp();
 
   protected int[] getRgbBytes() {
     imageConverter.run();
@@ -300,7 +302,6 @@ public abstract class CameraActivity extends AppCompatActivity
   public synchronized void onResume() {
     LOGGER.d("onResume " + this);
     super.onResume();
-    bluetoothStatusCheck();
     handlerThread = new HandlerThread("inference");
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
@@ -425,7 +426,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected void setFragment() {
     String cameraId = chooseCamera();
 
-    Fragment fragment;
     if (useCamera2API) {
       CameraConnectionFragment camera2Fragment =
           CameraConnectionFragment.newInstance(
@@ -447,8 +447,11 @@ public abstract class CameraActivity extends AppCompatActivity
       fragment =
           new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
     }
+  }
 
-    getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+  protected void clearFragment() {
+    if (fragment != null)
+      getFragmentManager().beginTransaction().remove(fragment).commit();
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {
@@ -485,13 +488,6 @@ public abstract class CameraActivity extends AppCompatActivity
       default:
         return 0;
     }
-  }
-
-  public void bluetoothStatusCheck(){
-      if(myBT.isEnabled())
-          bluetoothBtn.setImageResource(R.drawable.bluetooth_on);
-      else
-          bluetoothBtn.setImageResource(R.drawable.bluetooth_off);
   }
 
   protected abstract void processImage();

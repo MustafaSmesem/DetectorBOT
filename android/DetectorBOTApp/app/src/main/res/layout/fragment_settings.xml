@@ -1,0 +1,41 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    tools:context="com.tensorflow.lite.examples.detection.SettingsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:id="@+id/tv_setting_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_alignParentTop="true"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:textColor="@color/appPrimary"
+        android:text="Settings" />
+
+    <View
+        android:id="@+id/line_first"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/tv_setting_title"
+        android:background="@color/appPrimary"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_below="@+id/line_first"
+        android:background="@color/appPrimary"/>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/setting_scrollView"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/tv_setting_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></android.support.v4.widget.NestedScrollView>
+
+</RelativeLayout>

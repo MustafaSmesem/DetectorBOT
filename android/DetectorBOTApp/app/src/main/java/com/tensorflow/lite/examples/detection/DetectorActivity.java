@@ -16,7 +16,7 @@
 
 package com.tensorflow.lite.examples.detection;
 
-//import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -24,12 +24,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-//import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
-//import android.net.Uri;
-//import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -48,7 +45,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Handler;
 
 import org.tensorflow.lite.examples.detection.R;
 
@@ -118,7 +114,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   /*** End Servos ***/
 
-
+  private boolean isDetected = false;
+  private int isDetectedCounter = 0;
+  private int detectedDelay = 15;
   /*** SearchState Variables  ***/
 
     /***
@@ -228,6 +226,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   @Override
+  protected void resetApp() {
+
+  }
+
+  @Override
   protected void processImage() {
     ++timestamp;
     final long currTimestamp = timestamp;
@@ -306,6 +309,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               final RectF location = result.getLocation();
               if (location != null && result.getConfidence() >= minimumConfidence) {
                 motorStop();
+                isDetected = true;
+
+                isDetectedCounter = 0;
+
                 positionX = location.centerX();
                 positionY = location.centerY();
                 detectedLabel = result.getTitle();
@@ -328,8 +335,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
               }else{
 
-                if(isAuto)
+                if (isDetectedCounter >= detectedDelay)
+                  isDetected = false;
+
+                if(isAuto && !isDetected) {
                   searchState();
+                }else{
+                  isDetectedCounter++;
+                }
               }
             }
 
@@ -342,11 +355,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 new Runnable() {
                   @Override
                   public void run() {
+                    /*
                       tv_positionX.setText(""+positionX);
                       tv_positionY.setText(""+positionY);
                       tv_detectedLabel.setText(""+detectedLabel);
                       tv_score.setText(scoreS+"%");
                       tv_object_center.setText("L: "+pos[1]+" ,R: "+pos[3]+" ,T: "+pos[0]+" ,B: "+pos[2]);
+                      */
                   }
                 });
           }
@@ -392,7 +407,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       servo4Value -= servo4SearchSpeed;
       try {
         onFragmentInteraction("s4u#");
-      }catch (Exception e){      }
+      }catch (Exception e){ }
       if (servo4Value <= servo4SearchUp)
         searchArmType = 'd';
     }else if (searchArmType == 'd'){
@@ -465,8 +480,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   @Override
   public void onFragmentInteraction(String msg) {
-    BluetoothFragment fragment1 = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag("bluetoothFragment");
-    fragment1.sendMsg(msg);
+    BluetoothFragment btFragment = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag(bluetoothFragmentTag);
+    btFragment.sendMsg(msg);
+  }
+
+  @Override
+  public void onFragmentSend(String msg) {
+
   }
 
 

@@ -57,10 +57,9 @@ public class BluetoothFragment extends Fragment {
     private Vibrator vibe;
     private OnFragmentInteractionListener mListener;
 
-    private ImageButton btnrefresh, btnVisible;
     private TextView tvFoundedBtName, tv_info ;
     private ListView lvBluetooth;
-    private Switch btTurn , stAuto;
+    private Switch btTurn ;
 
     public boolean status = false;
     private List<String> btNames;
@@ -123,13 +122,10 @@ public class BluetoothFragment extends Fragment {
         lvBluetooth = view.findViewById(R.id.lv_Blutooth);
         lvBluetooth.setAdapter(adapter);
         lvBluetooth.setOnItemClickListener(mDeviceClickListener);
-        btnVisible = view.findViewById(R.id.ib_visible);
-        btnrefresh = view.findViewById(R.id.ib_refresh);
         tv_info = view.findViewById(R.id.tv_forward_distance);
         tvFoundedBtName = view.findViewById(R.id.tv_founded_bt_name);
         vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         btTurn = view.findViewById(R.id.switchBt);
-        stAuto = view.findViewById(R.id.switchBt_auto);
         checkBT();
 
         mHandler = new Handler(){
@@ -180,23 +176,6 @@ public class BluetoothFragment extends Fragment {
                     }
                 }
             });
-
-
-            btnVisible.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listPairedDevices(v);
-                    vibe.vibrate(25);
-                }
-            });
-
-            btnrefresh.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    discover(v);
-                    vibe.vibrate(25);
-                }
-            });
         }
 
         return view;
@@ -220,10 +199,11 @@ public class BluetoothFragment extends Fragment {
         sendMsg("!#");
         myBluetooth.disable(); // turn off
         tv_info.setText("Bluetooth disabled");
+        adapter.clear();
         Toast.makeText(getContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();
     }
 
-    private void discover(View view){
+    private void discover(){
         // Check if the device is already discovering
         if(myBluetooth.isDiscovering()){
             myBluetooth.cancelDiscovery();
@@ -233,7 +213,7 @@ public class BluetoothFragment extends Fragment {
             if(myBluetooth.isEnabled()) {
                 adapter.clear(); // clear items
                 myBluetooth.startDiscovery();
-                Toast.makeText(getContext(), "Discovery started", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "Discovery started", Toast.LENGTH_SHORT).show();
                 getActivity().registerReceiver(blReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
             }
             else{
@@ -255,7 +235,7 @@ public class BluetoothFragment extends Fragment {
         }
     };
 
-    private void listPairedDevices(View view){
+    private void listPairedDevices(){
         mPairedDevices = myBluetooth.getBondedDevices();
         adapter.clear();
         if(myBluetooth.isEnabled()) {
@@ -263,7 +243,7 @@ public class BluetoothFragment extends Fragment {
             for (BluetoothDevice device : mPairedDevices)
                 adapter.add(device.getName() + "\n" + device.getAddress());
 
-            Toast.makeText(getContext(), "Show Paired Devices", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Show Paired Devices", Toast.LENGTH_SHORT).show();
         }
         else
             Toast.makeText(getContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
@@ -273,8 +253,8 @@ public class BluetoothFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_ENABLE_BT){
             if(resultCode == RESULT_OK){
-
-
+                discover();
+                listPairedDevices();
             }else{
                 btTurn.setChecked(false);
 
@@ -289,6 +269,7 @@ public class BluetoothFragment extends Fragment {
         if(myBluetooth.isEnabled()){
             if(!btTurn.isChecked())    {
                 btTurn.setChecked(true);
+                listPairedDevices();
             }
         }else{
             if(btTurn.isChecked()){
@@ -444,6 +425,12 @@ public class BluetoothFragment extends Fragment {
     public void sendMsg(String s){
         if(myBluetooth.isEnabled() && mConnectedThread != null) //First check to make sure thread created
             mConnectedThread.write(s);
+        else
+            Toast.makeText(getContext(), "Connect to the robot", Toast.LENGTH_SHORT).show();
+    }
+
+    public void setLabel(String s){
+        tvFoundedBtName.setText(s);
     }
     /**
      * This interface must be implemented by activities that contain this

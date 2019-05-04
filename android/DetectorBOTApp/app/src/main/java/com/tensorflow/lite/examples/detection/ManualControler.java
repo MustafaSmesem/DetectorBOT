@@ -817,4 +817,5 @@ public class ManualControler extends AppCompatActivity implements BluetoothFragm
         BluetoothFragment fragment1 = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag("bluetoothFragment");
         fragment1.sendMsg(msg);
     }
+
 }

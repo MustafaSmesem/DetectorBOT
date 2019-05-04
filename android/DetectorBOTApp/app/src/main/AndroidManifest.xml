@@ -28,23 +28,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.tensorflow.lite.examples.detection.ManualControler"
-            android:screenOrientation="landscape">
-
-        </activity>
-        <activity
-            android:name="com.tensorflow.lite.examples.detection.MainActivity"
+            android:name="com.tensorflow.lite.examples.detection.DetectorActivity"
+            android:label="@string/activity_name_detection"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.tensorflow.lite.examples.detection.DetectorActivity"
-            android:label="@string/activity_name_detection"
-            android:screenOrientation="landscape">
         </activity>
     </application>
 

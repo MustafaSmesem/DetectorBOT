@@ -52,11 +52,11 @@ public class MultiBoxTracker {
   // Consider object to be lost if correlation falls below this threshold.
   private static final float MIN_CORRELATION = 0.3f;
   private static final int[] COLORS = {
-    Color.CYAN,
+    Color.YELLOW,
     Color.WHITE,
     Color.GREEN,
     Color.RED,
-    Color.YELLOW,
+    Color.CYAN,
     Color.TRANSPARENT,
     Color.BLUE,
     Color.parseColor("#55FF55"),
