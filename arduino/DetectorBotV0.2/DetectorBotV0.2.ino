@@ -494,6 +494,8 @@ void checkAutoCommands(){
         isAuto = true;
       else if(cmdValue == "M")
         isAuto = false;
+      else if(cmdValue == "R")
+        Reset();
     }else if(Length == 2){
       if(cmdValue == "mg")
         magnetSwitch();

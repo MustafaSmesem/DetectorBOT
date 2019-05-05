@@ -154,7 +154,6 @@ public abstract class CameraActivity extends AppCompatActivity
           isAuto = true;
           stAuto.setText(R.string.auto_mode);
           getFragmentManager().beginTransaction().replace(R.id.container, fragment , "autoFragment").commit();
-          resetApp();
           isChanged = true;
         }else{
           isAuto = false;
@@ -162,13 +161,11 @@ public abstract class CameraActivity extends AppCompatActivity
           stAuto.setText(R.string.manual_mode);
           getSupportFragmentManager().beginTransaction().replace(R.id.container, manFragment , "manualFragment").commit();
           clearFragment();
-          resetApp();
         }
       }
     });
   }
 
-  protected abstract void resetApp();
 
   protected int[] getRgbBytes() {
     imageConverter.run();

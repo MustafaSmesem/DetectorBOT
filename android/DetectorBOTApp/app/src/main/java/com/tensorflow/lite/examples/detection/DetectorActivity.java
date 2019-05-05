@@ -225,8 +225,20 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         });
   }
 
-  @Override
+
   protected void resetApp() {
+    try {
+      onFragmentInteraction("R#");
+      servo4Value = servo4Reset;
+      servo1Value = servo1Reset;
+      isDetected = false;
+      isDetectedCounter =0;
+      searchTypeFlag = true;
+      searchArmType = 'u';
+      searchMotorFlag = true;
+      movementCounter = 0;
+      motorStop();
+    }catch (Exception e){      }
 
   }
 
@@ -275,10 +287,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               if (isAuto){
                 try {
                   onFragmentInteraction("A#");
+                  resetApp();
                 }catch (Exception e){      }
               }else{
                 try {
                   onFragmentInteraction("M#");
+                  resetApp();
                 }catch (Exception e){      }
               }
               isChanged = false;
