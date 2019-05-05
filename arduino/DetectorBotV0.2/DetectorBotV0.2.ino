@@ -79,7 +79,7 @@ boolean msgEnd = false;
 #define pulselen3Rst 525
 #define pulselen4Max 520
 #define pulselen4Min 270
-#define pulselen4Rst 390
+#define pulselen4Rst 350
 
 int s1 = 0;
 int s2 = 2;
@@ -92,7 +92,9 @@ uint16_t pulselen2;
 uint16_t pulselen3;
 uint16_t pulselen4;
 
-int servoWriteDelay = 20;
+int servoManDelay = 3;
+int servoWriteDelay = servoManDelay;
+int servoAutoDelay = 20;
 int servo1SearchSpeed = 8;
 int servo4SearchSpeed = 5;
 
@@ -392,42 +394,6 @@ void checkCommands(){
         motorAngel = 180;
       else if(cmdValue == "mg")
         magnetSwitch();
-    }else if(Length == 3){
-      if(cmdValue == "p1u" && pulselen1 < pulselen1Max){
-        pulselen1 += 2;
-        pwm.setPWM(s1, 0, pulselen1);
-      }else if(cmdValue == "p1d" && pulselen1 > pulselen1Min){
-        pulselen1 -= 2;
-        pwm.setPWM(s1, 0, pulselen1);
-      }else if(cmdValue == "p2u" && pulselen2 < pulselen2Max){
-        pulselen2 += 2;
-        pwm.setPWM(s2, 0, pulselen2);
-      }else if(cmdValue == "p2d" && pulselen2 > pulselen2Min){
-        pulselen2 -= 2;
-        pwm.setPWM(s2, 0, pulselen2);
-      }else if(cmdValue == "p3d" && pulselen3 < pulselen3Max){
-        pulselen3 += 2;
-        pwm.setPWM(s3, 0, pulselen3);
-      }else if(cmdValue == "p3u" && pulselen3 > pulselen3Min){
-        pulselen3 -= 2;
-        pwm.setPWM(s3, 0, pulselen3);
-      }else if(cmdValue == "p4u" && pulselen4 < pulselen4Max){
-        pulselen4 += 1;
-        pwm.setPWM(s4, 0, pulselen4);
-      }else if(cmdValue == "p4d" && pulselen4 > pulselen4Min){
-        pulselen4 -= 1;
-        pwm.setPWM(s4, 0, pulselen4);
-      }else if(cmdValue == "pxu" && pulselen2 < pulselen2Max){
-        pulselen2 +=2;
-        pulselen3 -=2;
-        pwm.setPWM(s2, 0, pulselen2);
-        pwm.setPWM(s3, 0, pulselen3);
-      }else if(cmdValue == "pxd" && pulselen2 > pulselen2Min){
-        pulselen2 -=2;
-        pulselen3 +=2;
-        pwm.setPWM(s2, 0, pulselen2);
-        pwm.setPWM(s3, 0, pulselen3);
-      }
     }else if(Length > 3){
       if(cmdValue[0] == 'p'){
         String pulseValueStr = "";
@@ -436,17 +402,18 @@ void checkCommands(){
         }
         int pulseValue = pulseValueStr.toInt();
         if(cmdValue[1] == '1'){
+          servoWrite(s1, pulselen1 , pulseValue*2+pulselen1Min);
           pulselen1 = pulseValue*2+pulselen1Min;
-          pwm.setPWM(s1, 0, pulselen1);
         }else if(cmdValue[1] == '4'){
+          servoWrite(s4, pulselen4 , pulseValue+pulselen4Min);
           pulselen4 = pulseValue+pulselen4Min;
-          pwm.setPWM(s4, 0, pulselen4);
-        }else if(cmdValue[1] == '5'){
-          pulselen2 = pulseValue*2+pulselen2Min;  
-          pulselen3 = 700 - pulselen2;
-          pwm.setPWM(s3, 0, pulselen3);
-          pwm.setPWM(s2, 0, pulselen2);
-        }  
+        }else if(cmdValue[1] == '2'){
+          servoWrite(s2, pulselen2 , pulseValue*2+pulselen2Min);
+          pulselen2 = pulseValue*2+pulselen2Min;
+        }else if(cmdValue[1] == '3'){
+          servoWrite(s3, pulselen3 , pulseValue*2+pulselen3Min);
+          pulselen3 = pulseValue*2+pulselen3Min;
+        } 
       }
     }  
 }
@@ -565,9 +532,6 @@ void Reset(){
   pwm.setPWM(s2, 0, pulselen2);
   delay(10);
   pwm.setPWM(s3, 0, pulselen3);
-  delay(50);
-  pulselen4=350;
-  pwm.setPWM(s4, 0, pulselen4);
   delay(200);
   pwm.setPWM(s1, 0, pulselen1);
 }
@@ -607,9 +571,12 @@ void checkBluetoothMsg(boolean controllerMode){
   
     if(msgEnd){
       if(controllerMode){ 
+        servoWriteDelay = servoAutoDelay;
         checkAutoCommands();
-      }else
+      }else{
+        servoWriteDelay = servoManDelay;
         checkCommands();
+      }
       msgEnd=false;
       cmdValue="";  
     }   

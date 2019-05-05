@@ -143,6 +143,7 @@ public class BluetoothFragment extends Fragment {
                 if(msg.what == CONNECTING_STATUS){
                     if(msg.arg1 == 1){
                         tvFoundedBtName.setText("Device: " + (String)(msg.obj));
+                        sendMsg("c#");
                         status = true;
                     }
                     else {
@@ -422,13 +423,8 @@ public class BluetoothFragment extends Fragment {
     public void sendMsg(String s){
         if(myBluetooth.isEnabled() && mConnectedThread != null) //First check to make sure thread created
             mConnectedThread.write(s);
-        else
-            Toast.makeText(getContext(), "Connect to the robot", Toast.LENGTH_SHORT).show();
     }
 
-    public void setLabel(String s){
-        tvFoundedBtName.setText(s);
-    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

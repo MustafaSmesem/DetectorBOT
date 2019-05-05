@@ -3,6 +3,7 @@ package com.tensorflow.lite.examples.detection;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -29,22 +30,17 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
 
 
     private final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
-    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 200 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 10 , servoxValueR=0 ;
+    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 100 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 80 , servoxValueR=0 ;
 
-    private int speedProgress=3 , angelProgress=2 , servo1Value = 157 , servo2Value = 0 , servo3Value = 187 , servo4Value = 10 , servoxValue=0;
+    private int speedProgress=3 , angelProgress=2 , servo1Value = servo1ValueR , servo2Value = servo2ValueR , servo3Value = servo3ValueR , servo4Value = servo4ValueR , servoxValue=servoxValueR;
     private ImageButton servo1Up,servo1Down,servo3Up,servo3Down,servo2Up,servo2Down,servo4Up,servo4Down,servoxUp,servoxDown;
-    private SeekBar speedBar , servo1Bar , servo4Bar , servoxBar , angelBar;
+    private SeekBar speedBar , servo1Bar , servo4Bar , servoxBar , angelBar , servo2Bar , servo3Bar;
 
-    private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar , tvServoxBar , tvServo3 , tvServo2 , tvConnection , tvAngelBar;
+    private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar , tvServoxBar , tvServo3Bar , tvServo2Bar , tvAngelBar;
     private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet;
 
     private boolean magnetFlag = false;
     private Vibrator vibe;
-
-
-
-
-
 
 
 
@@ -118,8 +114,8 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         tvSpeedProgress = view.findViewById(R.id.tv_progress_speed);
         tvServo1Bar = view.findViewById(R.id.tv_servo1);
         tvServo4Bar = view.findViewById(R.id.tv_servo4);
-        tvServo2 = view.findViewById(R.id.tv_servo2);
-        tvServo3 = view.findViewById(R.id.tv_servo3);
+        tvServo2Bar = view.findViewById(R.id.tv_servo2);
+        tvServo3Bar = view.findViewById(R.id.tv_servo3);
         tvServoxBar = view.findViewById(R.id.tv_servox);
         tvAngelBar = view.findViewById(R.id.tv_progress_angel);
 
@@ -130,9 +126,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         angelBar = view.findViewById(R.id.angel_bar);
         angelBar.setProgress(angelProgress);
         tvAngelBar.setText(angelProgress + " %");
-
-        tvServo2.setText(servo2Value+"");
-        tvServo3.setText(servo3Value+"");
 
         servo1Up   = view.findViewById(R.id.servo1_btn_plus);
         servo1Down = view.findViewById(R.id.servo1_btn_sub);
@@ -151,12 +144,20 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         tvServo1Bar.setText(String.valueOf(servo1Value));
         servo4Bar  = view.findViewById(R.id.servo4_seek_bar);
         servo4Bar.setMax(servo4Max);
-        servo4Bar.setProgress(servo4Value);
-        tvServo4Bar.setText(String.valueOf(servo4Value));
+        servo4Bar.setProgress(servo4ValueR);
+        tvServo4Bar.setText(String.valueOf(servo4ValueR));
         servoxBar  = view.findViewById(R.id.servox_seek_bar);
         servoxBar.setMax(servoxMax);
         servoxBar.setProgress(servoxValue);
         tvServoxBar.setText(String.valueOf(servoxValue));
+        servo2Bar  = view.findViewById(R.id.servo2_seek_bar);
+        servo2Bar.setMax(servo2Max);
+        servo2Bar.setProgress(servo2Value);
+        tvServo2Bar.setText(String.valueOf(servo2Value));
+        servo3Bar  = view.findViewById(R.id.servo3_seek_bar);
+        servo3Bar.setMax(servo3Max);
+        servo3Bar.setProgress(servo3Value);
+        tvServo3Bar.setText(String.valueOf(servo3Value));
 
         servo1Up   = view.findViewById(R.id.servo1_btn_plus);
         servo1Down = view.findViewById(R.id.servo1_btn_sub);
@@ -442,6 +443,456 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
             }
         });
 
+
+
+        servo1Bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvServo1Bar.setText(String.valueOf(progress));
+                servo1Value = progress;
+                try{
+                    onFragmentInteraction("p1$"+servo1Value+"#");
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+        });
+        servo1Up.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo1Value < servo1Max){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if (servo1Value < servo1Max){
+                        servo1Value ++;
+                        tvServo1Bar.setText(String.valueOf(servo1Value));
+                        servo1Bar.setProgress(servo1Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+        servo1Down.setOnTouchListener(new View.OnTouchListener() {
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo1Value > 0){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if(servo1Value > 0){
+                        servo1Value --;
+                        servo1Bar.setProgress(servo1Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+
+
+
+        servo4Bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvServo4Bar.setText(String.valueOf(progress));
+                servo4Value = progress;
+                try{
+                    onFragmentInteraction("p4$"+servo4Value+"#");
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+        });
+        servo4Up.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo4Value < servo4Max){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if (servo4Value < servo4Max){
+                        servo4Value ++;
+                        tvServo4Bar.setText(String.valueOf(servo4Value));
+                        servo4Bar.setProgress(servo4Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+        servo4Down.setOnTouchListener(new View.OnTouchListener() {
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo4Value > 0){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if(servo4Value > 0){
+                        servo4Value --;
+                        tvServo4Bar.setText(String.valueOf(servo4Value));
+                        servo4Bar.setProgress(servo4Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+
+
+
+        servo2Bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvServo2Bar.setText(String.valueOf(progress));
+                servo2Value = progress;
+                try{
+                    onFragmentInteraction("p2$"+servo2Value+"#");
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+        });
+        servo2Up.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo2Value < servo2Max){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if (servo2Value < servo2Max){
+                        servo2Value ++;
+                        servo2Bar.setProgress(servo2Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+        servo2Down.setOnTouchListener(new View.OnTouchListener() {
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo2Value > 0){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if(servo2Value > 0){
+                        servo2Value --;
+                        servo2Bar.setProgress(servo2Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+
+
+        servo3Bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvServo3Bar.setText(String.valueOf(progress));
+                servo3Value = progress;
+                try{
+                    onFragmentInteraction("p3$"+servo3Value+"#");
+                }catch (Exception e){}
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+        });
+        servo3Up.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo3Value < servo3Max){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if (servo3Value < servo3Max){
+                        servo3Value ++;
+                        servo3Bar.setProgress(servo3Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+        servo3Down.setOnTouchListener(new View.OnTouchListener() {
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servo3Value > 0){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if(servo3Value > 0){
+                        servo3Value --;
+                        servo3Bar.setProgress(servo3Value);
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+
+
+
+        servoxBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvServoxBar.setText(String.valueOf(progress));
+                servoxValue = progress;
+                servo2Value = progress;
+                servo2Bar.setProgress(servo2Value);
+                if (progress <= 25){
+                    servo3Value = 187 - progress;
+                    servo3Bar.setProgress(servo3Value);
+                }else{
+                    servo3Value = 187 - 25;
+                    servo3Bar.setProgress(servo3Value);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                vibe.vibrate(10);
+            }
+        });
+        servoxUp.setOnTouchListener(new View.OnTouchListener() {
+
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servoxValue < servoxMax){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if (servoxValue < servoxMax){
+                        servoxValue ++;
+                        servo2Value ++;
+                        servoxBar.setProgress(servoxValue);
+                        servo2Bar.setProgress(servo2Value);
+                        if (servoxValue <= 25){
+                            servo3Value --;
+                            servo3Bar.setProgress(servo3Value);
+                        }
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+        servoxDown.setOnTouchListener(new View.OnTouchListener() {
+            private Handler mHandler;
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mHandler != null) return true;
+                        if(servoxValue > 0){
+                            mHandler = new Handler();
+                            mHandler.postDelayed(mAction, 5);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (mHandler == null) return true;
+                        mHandler.removeCallbacks(mAction);
+                        mHandler = null;
+                        break;
+                }
+                return false;
+            }
+
+            Runnable mAction = new Runnable() {
+                @Override public void run() {
+                    if(servoxValue > 0){
+                        servoxValue --;
+                        servo2Value --;
+                        servoxBar.setProgress(servoxValue);
+                        servo2Bar.setProgress(servo2Value);
+                        if (servoxValue <= 25){
+                            servo3Value ++;
+                            servo3Bar.setProgress(servo3Value);
+                        }
+                        vibe.vibrate(2);
+                        mHandler.postDelayed(this, 5);
+                    }
+                }
+            };
+        });
+
         return view;
     }
 
@@ -470,20 +921,14 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
 
         servo1Bar.setProgress(servo1Value);
         servo4Bar.setProgress(servo4Value);
+        servo2Bar.setProgress(servo2Value);
+        servo3Bar.setProgress(servo3Value);
         servoxBar.setProgress(servoxValue);
 
-        tvServo1Bar.setText(servo1Value+"");
-        tvServo4Bar.setText(servo4Value+"");
-        tvServoxBar.setText(servoxValue+"");
-
-        tvServo2.setText(servo2Value+"");
-        tvServo3.setText(servo3Value+"");
         try {
             onFragmentInteraction("c#");
             vibe.vibrate(25);
-        }catch (Exception e){
-            Toast.makeText(getContext(),"Error: check bluetooth connection.",Toast.LENGTH_SHORT).show();
-        }
+        }catch (Exception e){}
     }
 
 
