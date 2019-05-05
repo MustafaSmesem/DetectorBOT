@@ -54,7 +54,6 @@ public class BluetoothFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private Vibrator vibe;
     private OnFragmentInteractionListener mListener;
 
     private TextView tvFoundedBtName, tv_info ;
@@ -124,7 +123,6 @@ public class BluetoothFragment extends Fragment {
         lvBluetooth.setOnItemClickListener(mDeviceClickListener);
         tv_info = view.findViewById(R.id.tv_forward_distance);
         tvFoundedBtName = view.findViewById(R.id.tv_founded_bt_name);
-        vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         btTurn = view.findViewById(R.id.switchBt);
         checkBT();
 
@@ -165,7 +163,6 @@ public class BluetoothFragment extends Fragment {
             btTurn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    vibe.vibrate(25);
                     if(isChecked){
                         bluetoothOn();
                     }else{

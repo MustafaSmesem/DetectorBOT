@@ -292,7 +292,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               }else{
                 try {
                   onFragmentInteraction("M#");
-                  resetApp();
                 }catch (Exception e){      }
               }
               isChanged = false;

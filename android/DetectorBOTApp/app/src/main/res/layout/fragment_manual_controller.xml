@@ -2,36 +2,460 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#fff"
     tools:context="com.tensorflow.lite.examples.detection.ManualControllerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="234dp"
+        android:id="@+id/tv_progress_angel"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:text="2"
+        android:textAlignment="center" />
+
+    <SeekBar
+        android:id="@+id/angel_bar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_progress_angel"
+        android:layout_alignStart="@+id/tv_progress_angel"
+        android:max="3"
+        android:progress="2"
+        />
+
+    <TableRow
+        android:id="@+id/buttonsContainer"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/angel_bar"
+        android:layout_marginTop="20dp"
+        android:layout_alignStart="@+id/angel_bar"
+        >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/buttonsContainer"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/up_left_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparentColor"
+                    android:rotation="270"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/cross_arrow" />
+
+                <ImageButton
+                    android:id="@+id/up_btn"
+                    android:layout_width="60dp"
+                    android:layout_height="50dp"
+                    android:background="@color/transparentColor"
+                    android:rotation="90"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/left_arrow"
+                    tools:layout_editor_absoluteY="2dp" />
+
+                <ImageButton
+                    android:id="@+id/up_right_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparentColor"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/cross_arrow" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/left_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="60dp"
+                    android:layout_marginBottom="64dp"
+                    android:background="@color/transparentColor"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/left_arrow"
+                    tools:layout_editor_absoluteX="0dp" />
+
+                <ImageButton
+                    android:id="@+id/circle_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/transparentColor"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/circle" />
+
+                <ImageButton
+                    android:id="@+id/right_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="60dp"
+                    android:background="@color/transparentColor"
+                    android:rotation="180"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/left_arrow"
+                    tools:layout_editor_absoluteX="147dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/down_left_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparentColor"
+                    android:rotation="180"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/cross_arrow" />
+
+                <ImageButton
+                    android:id="@+id/down_btn"
+                    android:layout_width="60dp"
+                    android:layout_height="50dp"
+                    android:background="@color/transparentColor"
+                    android:rotation="270"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/left_arrow"
+                    tools:layout_editor_absoluteX="65dp"
+                    tools:layout_editor_absoluteY="140dp" />
+
+                <ImageButton
+                    android:id="@+id/down_right_btn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparentColor"
+                    android:rotation="90"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/cross_arrow" />
+            </LinearLayout>
+        </LinearLayout>
+    </TableRow>
+
+    <TextView
+        android:id="@+id/tv_progress_speed"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonsContainer"
+        android:layout_marginTop="15dp"
+        android:layout_alignStart="@id/buttonsContainer"
+        android:text="2"
+        android:textAlignment="center" />
+    <SeekBar
+        android:id="@+id/speed_bar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_progress_speed"
+        android:layout_alignStart="@+id/tv_progress_speed"
+        android:max="10"
+        android:progress="2" />
+
+    <ImageButton
+        android:id="@+id/btn_magnet"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@color/transparentColor"
+        android:scaleType="fitCenter"
+        android:layout_below="@+id/speed_bar"
+        android:layout_marginTop="10dp"
+        android:layout_alignStart="@+id/speed_bar"
+        android:layout_marginStart="55dp"
+        android:src="@drawable/magnet_off" />
+
+    <SeekBar
+        android:id="@+id/servo4_seek_bar"
+        style="@android:style/Widget.Material.SeekBar"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="97dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="80dp"
-        android:text="Manual Controller"
-        android:textAlignment="center"
-        android:textColor="@color/appPrimary"
-        android:textSize="50dp"
+        android:layout_marginEnd="40dp"
+        android:max="270"
+        android:progress="150"
+        android:progressDrawable="@drawable/seek_bar_theme_custom"
+        android:thumb="@drawable/seek_bar_thumb" />
+
+    <ImageButton
+        android:id="@+id/servo4_btn_sub"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo4_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_toStartOf="@+id/servo4_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="-90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow" />
+
+    <TextView
+        android:id="@+id/tv_servo4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/servo4_seek_bar"
+        android:layout_marginStart="25dp"
+        android:layout_alignTop="@+id/servo4_seek_bar"
+        android:layout_marginTop="5dp"
+        android:text="150"
+        android:textAlignment="textStart"
+        android:textColor="@android:color/white"
         android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btn_send"
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/servo4_btn_plus"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo4_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_toEndOf="@+id/servo4_seek_bar"
+        android:layout_marginStart="-55dp"
+        android:background="@color/transparentColor"
+        android:rotation="90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow" />
+
+
+
+
+    <SeekBar
+        android:id="@+id/servox_seek_bar"
+        style="@android:style/Widget.Material.SeekBar"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/servo4_seek_bar"
+        android:layout_alignStart="@+id/servo4_seek_bar"
+        android:layout_marginTop="55dp"
+        android:max="180"
+        android:progress="150"
+        android:progressDrawable="@drawable/seek_bar_theme_custom2"
+        android:thumb="@drawable/seek_bar_thumb_1"
+        android:verticalScrollbarPosition="left" />
+
+    <ImageButton
+        android:id="@+id/servox_btn_sub"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servox_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_toStartOf="@+id/servox_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="270"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_1" />
+
+    <TextView
+        android:id="@+id/tv_servox"
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/servox_seek_bar"
+        android:layout_marginStart="25dp"
+        android:layout_alignTop="@+id/servox_seek_bar"
+        android:layout_marginTop="5dp"
+        android:text="150"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/servox_btn_plus"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servox_btn_sub"
+        android:layout_marginStart="-15dp"
+        android:layout_toEndOf="@+id/servox_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_1" />
+
+
+
+
+    <SeekBar
+        android:id="@+id/servo2_seek_bar"
+        style="@android:style/Widget.Material.SeekBar"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/servox_seek_bar"
+        android:layout_alignStart="@+id/servox_seek_bar"
+        android:layout_marginTop="20dp"
+        android:max="180"
+        android:progress="150"
+        android:progressDrawable="@drawable/seek_bar_theme_custom1"
+        android:thumb="@drawable/seek_bar_thumb_2"
+        android:verticalScrollbarPosition="left" />
+
+    <ImageButton
+        android:id="@+id/servo2_btn_sub"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo2_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_toStartOf="@+id/servo2_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="270"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_2" />
+
+    <TextView
+        android:id="@+id/tv_servo2"
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/servo2_seek_bar"
+        android:layout_marginStart="25dp"
+        android:layout_alignTop="@+id/servo2_seek_bar"
+        android:layout_marginTop="5dp"
+        android:text="150"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/servo2_btn_plus"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo2_btn_sub"
+        android:layout_marginStart="-15dp"
+        android:layout_toEndOf="@+id/servo2_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_2" />
+
+
+
+
+    <SeekBar
+        android:id="@+id/servo3_seek_bar"
+        style="@android:style/Widget.Material.SeekBar"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/servo2_seek_bar"
+        android:layout_alignStart="@+id/servo2_seek_bar"
+        android:layout_marginTop="20dp"
+        android:max="180"
+        android:progress="150"
+        android:progressDrawable="@drawable/seek_bar_theme_custom1"
+        android:thumb="@drawable/seek_bar_thumb_2"
+        android:verticalScrollbarPosition="left" />
+
+    <ImageButton
+        android:id="@+id/servo3_btn_sub"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo3_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_toStartOf="@+id/servo3_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="270"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_2" />
+
+    <TextView
+        android:id="@+id/tv_servo3"
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/servo3_seek_bar"
+        android:layout_marginStart="25dp"
+        android:layout_alignTop="@+id/servo3_seek_bar"
+        android:layout_marginTop="5dp"
+        android:text="150"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/servo3_btn_plus"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo3_btn_sub"
+        android:layout_marginStart="-15dp"
+        android:layout_toEndOf="@+id/servo3_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow_2" />
+
+
+
+    <SeekBar
+        android:id="@+id/servo1_seek_bar"
+        style="@android:style/Widget.Material.SeekBar"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/servo4_seek_bar"
         android:layout_alignParentBottom="true"
-        android:padding="20dp"
-        android:layout_margin="10dp"
-        android:text="SEND"
-        android:textSize="30dp"
-        android:textStyle="bold"
-        android:textColor="@color/appPrimaryDark"/>
+        android:layout_marginBottom="30dp"
+        android:max="270"
+        android:progress="150"
+        android:progressDrawable="@drawable/seek_bar_theme_custom"
+        android:thumb="@drawable/seek_bar_thumb" />
+
+    <ImageButton
+        android:id="@+id/servo1_btn_sub"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo1_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-15dp"
+        android:layout_toStartOf="@+id/servo1_seek_bar"
+        android:background="@color/transparentColor"
+        android:rotation="-90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow" />
+
+    <TextView
+        android:id="@+id/tv_servo1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/servo1_seek_bar"
+        android:layout_marginStart="25dp"
+        android:layout_alignTop="@+id/servo1_seek_bar"
+        android:layout_marginTop="5dp"
+        android:text="150"
+        android:textAlignment="textStart"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/servo1_btn_plus"
+        android:layout_width="41dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/servo1_seek_bar"
+        android:layout_marginTop="-5dp"
+        android:layout_toEndOf="@+id/servo1_seek_bar"
+        android:layout_marginStart="-15dp"
+        android:background="@color/transparentColor"
+        android:rotation="90"
+        android:scaleType="fitCenter"
+        android:src="@drawable/button_arrow" />
 
 </RelativeLayout>

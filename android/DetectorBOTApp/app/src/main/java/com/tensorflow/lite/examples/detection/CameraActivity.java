@@ -86,7 +86,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private boolean brightnessState = false;
   private Fragment fragment;
   private ManualControllerFragment manFragment;
-  protected String bluetoothFragmentTag="";
+  protected final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
 
   private int[] tabIcons = {
           R.drawable.infor_icon,
@@ -114,7 +114,6 @@ public abstract class CameraActivity extends AppCompatActivity
     mTabLayout.getTabAt(0).setIcon(tabIcons[0]);
     mTabLayout.getTabAt(1).setIcon(tabIcons[1]);
     mTabLayout.getTabAt(2).setIcon(tabIcons[2]);
-    bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
 
     ibtnBrightness = findViewById(R.id.brightness_ibtn);
     ibtnBrightness.setOnClickListener(new View.OnClickListener() {
