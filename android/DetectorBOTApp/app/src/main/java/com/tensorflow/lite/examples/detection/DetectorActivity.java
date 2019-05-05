@@ -116,7 +116,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private boolean isDetected = false;
   private int isDetectedCounter = 0;
-  private int detectedDelay = 15;
+  private int detectedDelay = 10;
   /*** SearchState Variables  ***/
 
     /***
@@ -159,6 +159,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     /*** End Distance ***/
   /*** End SearchState Variables  ***/
+
+  /*** Tacking State variables ***/
+    private int objectHight = 0;
+    private int objectWidth = 0;
+
+
+
+  /*** End Tacking State variables ***/
 
 
   @Override
@@ -328,18 +336,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                 positionX = location.centerX();
                 positionY = location.centerY();
+                objectWidth = (int) (location.right - location.left);
+                objectHight = (int) (location.bottom - location.top);
+
                 detectedLabel = result.getTitle();
 
+                /*
                 score = result.getConfidence();
                 score *= 100;
                 scoreS = df.format(score);
+                */
 
-                /***/
-                    pos[1] = location.left;
-                    pos[0] = location.top;
-                    pos[3] = location.right;
-                    pos[2] = location.bottom;
-                /***/
+
 
                 canvas.drawPoint(positionX , positionY , paint);
                 cropToFrameTransform.mapRect(location);
