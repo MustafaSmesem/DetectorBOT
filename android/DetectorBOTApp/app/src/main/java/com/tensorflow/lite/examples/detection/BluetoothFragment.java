@@ -136,7 +136,9 @@ public class BluetoothFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    tv_info.setText("Forward: "+readMessage);
+                    int distance = Integer.parseInt(readMessage.substring(0,3).replaceAll(" ",""));
+                    tv_info.setText("Distance: "+distance+" cm");
+                    mListener.bluetoothDistance(distance);
 
                 }
 
@@ -438,5 +440,6 @@ public class BluetoothFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(String msg);
+        void bluetoothDistance(int d);
     }
 }

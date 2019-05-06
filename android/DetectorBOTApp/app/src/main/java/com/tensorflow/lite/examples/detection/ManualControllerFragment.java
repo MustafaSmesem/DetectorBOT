@@ -33,10 +33,10 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
     private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 100 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 80 , servoxValueR=0 ;
 
     private int speedProgress=3 , angelProgress=2 , servo1Value = servo1ValueR , servo2Value = servo2ValueR , servo3Value = servo3ValueR , servo4Value = servo4ValueR , servoxValue=servoxValueR;
-    private ImageButton servo1Up,servo1Down,servo3Up,servo3Down,servo2Up,servo2Down,servo4Up,servo4Down,servoxUp,servoxDown;
-    private SeekBar speedBar , servo1Bar , servo4Bar , servoxBar , angelBar , servo2Bar , servo3Bar;
+    private ImageButton servo1Up,servo1Down,servo3Up,servo3Down,servo2Up,servo2Down,servo4Up,servo4Down;
+    private SeekBar speedBar , servo1Bar , servo4Bar  , angelBar , servo2Bar , servo3Bar;
 
-    private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar , tvServoxBar , tvServo3Bar , tvServo2Bar , tvAngelBar;
+    private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar  , tvServo3Bar , tvServo2Bar , tvAngelBar;
     private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet;
 
     private boolean magnetFlag = false;
@@ -116,7 +116,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         tvServo4Bar = view.findViewById(R.id.tv_servo4);
         tvServo2Bar = view.findViewById(R.id.tv_servo2);
         tvServo3Bar = view.findViewById(R.id.tv_servo3);
-        tvServoxBar = view.findViewById(R.id.tv_servox);
         tvAngelBar = view.findViewById(R.id.tv_progress_angel);
 
         speedBar = view.findViewById(R.id.speed_bar);
@@ -135,8 +134,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo3Down = view.findViewById(R.id.servo3_btn_sub);
         servo4Up   = view.findViewById(R.id.servo4_btn_plus);
         servo4Down = view.findViewById(R.id.servo4_btn_sub);
-        servoxUp   = view.findViewById(R.id.servox_btn_plus);
-        servoxDown = view.findViewById(R.id.servox_btn_sub);
 
         servo1Bar  = view.findViewById(R.id.servo1_seek_bar);
         servo1Bar.setMax(servo1Max);
@@ -146,10 +143,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo4Bar.setMax(servo4Max);
         servo4Bar.setProgress(servo4ValueR);
         tvServo4Bar.setText(String.valueOf(servo4ValueR));
-        servoxBar  = view.findViewById(R.id.servox_seek_bar);
-        servoxBar.setMax(servoxMax);
-        servoxBar.setProgress(servoxValue);
-        tvServoxBar.setText(String.valueOf(servoxValue));
         servo2Bar  = view.findViewById(R.id.servo2_seek_bar);
         servo2Bar.setMax(servo2Max);
         servo2Bar.setProgress(servo2Value);
@@ -167,8 +160,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo3Down = view.findViewById(R.id.servo3_btn_sub);
         servo4Up   = view.findViewById(R.id.servo4_btn_plus);
         servo4Down = view.findViewById(R.id.servo4_btn_sub);
-        servoxUp   = view.findViewById(R.id.servox_btn_plus);
-        servoxDown = view.findViewById(R.id.servox_btn_sub);
 
 
         btnMagnet.setOnClickListener(new View.OnClickListener() {
@@ -789,110 +780,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
             };
         });
 
-
-
-        servoxBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvServoxBar.setText(String.valueOf(progress));
-                servoxValue = progress;
-                servo2Value = progress;
-                servo2Bar.setProgress(servo2Value);
-                if (progress <= 25){
-                    servo3Value = 187 - progress;
-                    servo3Bar.setProgress(servo3Value);
-                }else{
-                    servo3Value = 187 - 25;
-                    servo3Bar.setProgress(servo3Value);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                vibe.vibrate(10);
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                vibe.vibrate(10);
-            }
-        });
-        servoxUp.setOnTouchListener(new View.OnTouchListener() {
-
-            private Handler mHandler;
-            @Override public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (mHandler != null) return true;
-                        if(servoxValue < servoxMax){
-                            mHandler = new Handler();
-                            mHandler.postDelayed(mAction, 5);
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (mHandler == null) return true;
-                        mHandler.removeCallbacks(mAction);
-                        mHandler = null;
-                        break;
-                }
-                return false;
-            }
-
-            Runnable mAction = new Runnable() {
-                @Override public void run() {
-                    if (servoxValue < servoxMax){
-                        servoxValue ++;
-                        servo2Value ++;
-                        servoxBar.setProgress(servoxValue);
-                        servo2Bar.setProgress(servo2Value);
-                        if (servoxValue <= 25){
-                            servo3Value --;
-                            servo3Bar.setProgress(servo3Value);
-                        }
-                        vibe.vibrate(2);
-                        mHandler.postDelayed(this, 5);
-                    }
-                }
-            };
-        });
-        servoxDown.setOnTouchListener(new View.OnTouchListener() {
-            private Handler mHandler;
-            @Override public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (mHandler != null) return true;
-                        if(servoxValue > 0){
-                            mHandler = new Handler();
-                            mHandler.postDelayed(mAction, 5);
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (mHandler == null) return true;
-                        mHandler.removeCallbacks(mAction);
-                        mHandler = null;
-                        break;
-                }
-                return false;
-            }
-
-            Runnable mAction = new Runnable() {
-                @Override public void run() {
-                    if(servoxValue > 0){
-                        servoxValue --;
-                        servo2Value --;
-                        servoxBar.setProgress(servoxValue);
-                        servo2Bar.setProgress(servo2Value);
-                        if (servoxValue <= 25){
-                            servo3Value ++;
-                            servo3Bar.setProgress(servo3Value);
-                        }
-                        vibe.vibrate(2);
-                        mHandler.postDelayed(this, 5);
-                    }
-                }
-            };
-        });
-
         return view;
     }
 
@@ -923,7 +810,6 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo4Bar.setProgress(servo4Value);
         servo2Bar.setProgress(servo2Value);
         servo3Bar.setProgress(servo3Value);
-        servoxBar.setProgress(servoxValue);
 
         try {
             onFragmentInteraction("c#");
@@ -961,6 +847,12 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         BluetoothFragment btFragment = (BluetoothFragment) getActivity().getSupportFragmentManager().findFragmentByTag(bluetoothFragmentTag);
         btFragment.sendMsg(msg);
     }
+
+    @Override
+    public void bluetoothDistance(int d) {
+
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

@@ -4,8 +4,6 @@
 #include <Adafruit_PWMServoDriver.h>
 ///************End Libraries**************///
 
-int labelCounter = 0;
-int led = 13;
 ///*****************UltraSonic**********************///
 #define ultraVCC1 45
 #define ultraTRIG1 47
@@ -16,9 +14,10 @@ int led = 13;
 #define ultraVCC3 33
 #define ultraTRIG3 35
 #define ultraECHO3 37
-#define ultraVCC4 44
-#define ultraTRIG4 42
-#define ultraECHO4 40
+#define ultraVCC4 36
+#define ultraTRIG4 38
+#define ultraECHO4 34
+#define ultraGND4 32
 #define max_distance 400
 NewPing sonar1(ultraTRIG1, ultraECHO1, max_distance);
 NewPing sonar2(ultraTRIG2, ultraECHO2, max_distance);
@@ -26,6 +25,11 @@ NewPing sonar3(ultraTRIG3, ultraECHO3, max_distance);
 NewPing sonar4(ultraTRIG4, ultraECHO4, max_distance);
 
 int minDistance = 30;
+
+
+
+#define bluetoothVCC 28
+#define bluetoothGND 30
 ///****************End UltraSonic**********************///
 
 
@@ -37,7 +41,7 @@ unsigned long leftTime = 0;
 unsigned long rightTime = 0;
 unsigned long currentTime = 0;
 
-const long interval = 100;
+const long interval = 250;
 const long distanceInterval = 100;
 ///**********End Time Counters*************///
 
@@ -112,14 +116,7 @@ String detectedLabel = "";
 
 ///**************///
 void setup() {
-  pinMode(led, OUTPUT);
-  digitalWrite(led,HIGH);
-  delay(1000);
-  digitalWrite(led,LOW);
-  delay(1000);
-  digitalWrite(led,HIGH);
-  delay(1000);
-  digitalWrite(led,LOW);
+
 ///*******Motorlar*********///
   pinMode(rf, OUTPUT);
   pinMode(rb, OUTPUT);
@@ -140,9 +137,17 @@ void setup() {
   pinMode(ultraTRIG4, OUTPUT);
   pinMode(ultraECHO4, INPUT);
   pinMode(ultraVCC4, OUTPUT);
+  pinMode(ultraGND4, OUTPUT);
   digitalWrite(ultraVCC2, HIGH);
   digitalWrite(ultraVCC1, HIGH);
   digitalWrite(ultraVCC3, HIGH);
+  digitalWrite(ultraVCC4, HIGH);
+  digitalWrite(ultraGND4, LOW);
+
+  pinMode(bluetoothVCC, OUTPUT);
+  pinMode(bluetoothGND, OUTPUT);
+  digitalWrite(bluetoothVCC, HIGH);
+  digitalWrite(bluetoothGND, LOW);
 ///****************************///
 
   pinMode(magnet, OUTPUT);
@@ -198,7 +203,7 @@ void setup() {
 void loop() {
   
   checkBluetoothMsg(isAuto);
-  
+  check_arm_distance();
 }
 
 
@@ -224,7 +229,7 @@ void check_arm_distance(){
     previousMillis = currentMillis;
     int distance = sonar4.ping_cm();
     Serial3.print(distance);
-    Serial3.print("cm   ");
+    Serial3.print("       ");
   }
 }
 
@@ -505,15 +510,6 @@ void checkAutoCommands(){
           pwm.setPWM(s3, 0, pulselen3);
           pwm.setPWM(s2, 0, pulselen2);
         }  
-      }else if(cmdValue[0] == 'l'){
-        String label = "";
-        for(int i=0; i<Length-2;i++){
-          label += cmdValue[i+2];
-        }
-        detectedLabel = label;
-        labelCounter++;
-        Serial.print(labelCounter);
-        Serial.println(detectedLabel);
       }
     }  
 }

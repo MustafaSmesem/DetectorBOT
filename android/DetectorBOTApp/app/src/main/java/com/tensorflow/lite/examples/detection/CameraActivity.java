@@ -46,6 +46,7 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tensorflow.lite.examples.detection.env.ImageUtils;
@@ -84,6 +85,7 @@ public abstract class CameraActivity extends AppCompatActivity
   public Switch stAuto;
   private ImageButton ibtnBrightness;
   private boolean brightnessState = false;
+  protected TextView armDistanceTv;
   private Fragment fragment;
   private ManualControllerFragment manFragment;
   protected final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
@@ -114,6 +116,8 @@ public abstract class CameraActivity extends AppCompatActivity
     mTabLayout.getTabAt(0).setIcon(tabIcons[0]);
     mTabLayout.getTabAt(1).setIcon(tabIcons[1]);
     mTabLayout.getTabAt(2).setIcon(tabIcons[2]);
+
+    armDistanceTv = findViewById(R.id.tv_distance_arm);
 
     ibtnBrightness = findViewById(R.id.brightness_ibtn);
     ibtnBrightness.setOnClickListener(new View.OnClickListener() {

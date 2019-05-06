@@ -70,6 +70,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   OverlayView trackingOverlay;
   private Integer sensorOrientation;
 
+  private int armDistance = 0;
+
   private Classifier detector;
 
   private boolean isSearchState = false;
@@ -376,6 +378,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 new Runnable() {
                   @Override
                   public void run() {
+
                     /*
                       tv_positionX.setText(""+positionX);
                       tv_positionY.setText(""+positionY);
@@ -503,6 +506,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   public void onFragmentInteraction(String msg) {
     BluetoothFragment btFragment = (BluetoothFragment) getSupportFragmentManager().findFragmentByTag(bluetoothFragmentTag);
     btFragment.sendMsg(msg);
+  }
+
+  @Override
+  public void bluetoothDistance(int d) {
+    armDistance = d;
+    armDistanceTv.setText(armDistance+" cm");
   }
 
   @Override
