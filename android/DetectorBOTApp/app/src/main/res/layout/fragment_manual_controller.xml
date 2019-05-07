@@ -180,7 +180,7 @@
         android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="50dp"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="40dp"
         android:max="270"
@@ -397,7 +397,7 @@
         android:background="@color/transparentColor"
         android:scaleType="fitCenter"
         android:layout_below="@+id/servo1_seek_bar"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_alignStart="@+id/tv_servo1"
         android:layout_marginStart="70dp"
         android:src="@drawable/magnet_off" />

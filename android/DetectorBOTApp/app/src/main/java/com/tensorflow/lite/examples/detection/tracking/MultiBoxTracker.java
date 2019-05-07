@@ -52,7 +52,7 @@ public class MultiBoxTracker {
   // Consider object to be lost if correlation falls below this threshold.
   private static final float MIN_CORRELATION = 0.3f;
   private static final int[] COLORS = {
-    Color.YELLOW,
+    Color.MAGENTA,
     Color.WHITE,
     Color.GREEN,
     Color.RED,
@@ -108,7 +108,7 @@ public class MultiBoxTracker {
 
   public synchronized void drawDebug(final Canvas canvas) {
     final Paint textPaint = new Paint();
-    textPaint.setColor(Color.WHITE);
+    textPaint.setColor(Color.YELLOW);
     textPaint.setTextSize(60.0f);
 
     final Paint boxPaint = new Paint();
@@ -170,10 +170,10 @@ public class MultiBoxTracker {
               : new RectF(recognition.location);
 
       getFrameToCanvasMatrix().mapRect(trackedPos);
-      boxPaint.setColor(recognition.color);
+      boxPaint.setColor(Color.YELLOW);
 
       float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
-      cornerSize = 1.0f;
+      cornerSize = 50.0f;
       canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
 
       final String labelString =
@@ -186,6 +186,7 @@ public class MultiBoxTracker {
           canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%", boxPaint);
     }
   }
+
 
   public synchronized void onFrame(
       final int w,

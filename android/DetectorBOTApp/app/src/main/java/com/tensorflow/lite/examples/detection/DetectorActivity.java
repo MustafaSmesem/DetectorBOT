@@ -76,11 +76,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private boolean isSearchState = false;
 
-  private float positionX = 0, positionY = 0;
+  private int positionX = 0, positionY = 0;
   private boolean isLabel = false;
   private String detectedLabel="";
   private float score=0;
-  private float[] pos = new float[4];
+  private int[] pos = new int[4];
   DecimalFormat df = new DecimalFormat("##.##");
   String scoreS;
 
@@ -163,7 +163,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   /*** End SearchState Variables  ***/
 
   /*** Tacking State variables ***/
-    private int objectHight = 0;
+    private int objectHeight = 0;
     private int objectWidth = 0;
 
 
@@ -333,31 +333,31 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               if (location != null && result.getConfidence() >= minimumConfidence) {
                 motorStop();
                 isDetected = true;
-
                 isDetectedCounter = 0;
 
-                positionX = location.centerX();
-                positionY = location.centerY();
+                positionX = (int) location.centerX();
+                positionY = (int) location.centerY();
                 objectWidth = (int) (location.right - location.left);
-                objectHight = (int) (location.bottom - location.top);
-
+                objectHeight = (int) (location.bottom - location.top);
                 detectedLabel = result.getTitle();
 
-                /*
                 score = result.getConfidence();
                 score *= 100;
                 scoreS = df.format(score);
-                */
 
-
+                pos[0] = (int) location.left;
+                pos[1] = (int) location.top;
+                pos[2] = (int) location.right;
+                pos[3] = (int) location.bottom;
 
                 canvas.drawPoint(positionX , positionY , paint);
                 cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
                 mappedRecognitions.add(result);
 
-              }else{
+                trackingState();
 
+              }else{
                 if (isDetectedCounter >= detectedDelay)
                   isDetected = false;
 
@@ -378,18 +378,30 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 new Runnable() {
                   @Override
                   public void run() {
-
-                    /*
-                      tv_positionX.setText(""+positionX);
-                      tv_positionY.setText(""+positionY);
-                      tv_detectedLabel.setText(""+detectedLabel);
-                      tv_score.setText(scoreS+"%");
-                      tv_object_center.setText("L: "+pos[1]+" ,R: "+pos[3]+" ,T: "+pos[0]+" ,B: "+pos[2]);
-                      */
+                    if (isAuto && isDetected){
+                      tvObjectPosx.setText("X: "+positionX);
+                      tvObjectPosy.setText("Y: "+positionY);
+                      tvObjectWidth.setText("W: "+objectWidth);
+                      tvObjectHeight.setText("H: "+objectHeight);
+                      tvObjectLabel.setText("C: "+detectedLabel);
+                      tvObjectLeft.setText("L: "+pos[0]);
+                      tvObjectTop.setText("T: "+pos[1]);
+                      tvObjectRight.setText("R: "+pos[2]);
+                      tvObjectBottom.setText("B: "+pos[3]);
+                    }else {
+                      clearTv();
+                    }
                   }
                 });
+
           }
         });
+  }
+
+  private void trackingState() {
+
+    
+
   }
 
 

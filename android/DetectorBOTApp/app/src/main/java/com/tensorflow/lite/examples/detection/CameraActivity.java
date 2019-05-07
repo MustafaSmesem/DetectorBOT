@@ -99,6 +99,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private TabLayout mTabLayout;
   private TabsAccessorAdapter mTabsAccessorAdapter;
 
+
+  protected TextView tvObjectPosx, tvObjectPosy, tvObjectWidth , tvObjectHeight, tvObjectLabel, tvObjectLeft, tvObjectRight , tvObjectTop , tvObjectBottom;
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -118,6 +121,16 @@ public abstract class CameraActivity extends AppCompatActivity
     mTabLayout.getTabAt(2).setIcon(tabIcons[2]);
 
     armDistanceTv = findViewById(R.id.tv_distance_arm);
+
+    tvObjectPosx = findViewById(R.id.tv_object_posx);
+    tvObjectPosy = findViewById(R.id.tv_object_posy);
+    tvObjectWidth = findViewById(R.id.tv_object_width);
+    tvObjectHeight = findViewById(R.id.tv_object_height);
+    tvObjectLabel = findViewById(R.id.tv_object_label);
+    tvObjectLeft = findViewById(R.id.tv_object_left);
+    tvObjectRight = findViewById(R.id.tv_object_right);
+    tvObjectTop = findViewById(R.id.tv_object_top);
+    tvObjectBottom = findViewById(R.id.tv_object_bottom);
 
     ibtnBrightness = findViewById(R.id.brightness_ibtn);
     ibtnBrightness.setOnClickListener(new View.OnClickListener() {
@@ -162,8 +175,8 @@ public abstract class CameraActivity extends AppCompatActivity
           isAuto = false;
           isChanged = true;
           stAuto.setText(R.string.manual_mode);
-          getSupportFragmentManager().beginTransaction().replace(R.id.container, manFragment , "manualFragment").commit();
           clearFragment();
+          getSupportFragmentManager().beginTransaction().replace(R.id.container, manFragment , "manualFragment").commit();
         }
       }
     });
@@ -488,6 +501,18 @@ public abstract class CameraActivity extends AppCompatActivity
       default:
         return 0;
     }
+  }
+
+  protected void clearTv(){
+    tvObjectPosx.setText("");
+    tvObjectPosy.setText("");
+    tvObjectWidth.setText("");
+    tvObjectHeight.setText("");
+    tvObjectLabel.setText("");
+    tvObjectLeft.setText("");
+    tvObjectTop.setText("");
+    tvObjectRight.setText("");
+    tvObjectBottom.setText("");
   }
 
   protected abstract void processImage();
