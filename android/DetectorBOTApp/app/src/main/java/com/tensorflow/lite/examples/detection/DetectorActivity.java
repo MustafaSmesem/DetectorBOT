@@ -165,7 +165,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   /*** Tacking State variables ***/
     private int objectHeight = 0;
     private int objectWidth = 0;
-
+    private final int distanceTolerance = 35;
+    private final int screenTargetX = 200;
 
 
   /*** End Tacking State variables ***/
@@ -399,9 +400,25 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   private void trackingState() {
+    int distanceError = screenTargetX - positionX;
+    if (abs(distanceError) < distanceTolerance){
 
-    
+    }else{
+      if (distanceError > 0){
+        //left()
+      }else{
+        //right()
+      }
+    }
 
+
+  }
+
+  private int abs(int x) {
+    if (x<0)
+      return (x *= -1);
+    else
+      return x;
   }
 
 

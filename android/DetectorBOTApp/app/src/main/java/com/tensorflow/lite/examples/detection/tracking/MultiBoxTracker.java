@@ -175,6 +175,15 @@ public class MultiBoxTracker {
       float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
       cornerSize = 50.0f;
       canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
+      canvas.drawPoint( trackedPos.centerX() , trackedPos.centerY(), boxPaint);
+
+      Paint gridPaint = new Paint();
+      gridPaint.setColor(Color.WHITE);
+      gridPaint.setStrokeWidth(1);
+      canvas.drawLine(800 , 100 ,800 , 990 , gridPaint);
+      canvas.drawLine(1200 , 100 ,1200 , 990 , gridPaint);
+      canvas.drawLine(700 , 200 ,1300 , 200 , gridPaint);
+      canvas.drawLine(700 , 890 ,1300 , 890 , gridPaint);
 
       final String labelString =
           !TextUtils.isEmpty(recognition.title)
