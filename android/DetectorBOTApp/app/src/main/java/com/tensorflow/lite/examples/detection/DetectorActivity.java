@@ -27,6 +27,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Handler;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -118,7 +119,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private boolean isDetected = false;
   private int isDetectedCounter = 0;
-  private int detectedDelay = 10;
+  private int detectedDelay = 20;
   /*** SearchState Variables  ***/
 
     /***
@@ -165,9 +166,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   /*** Tacking State variables ***/
     private int objectHeight = 0;
     private int objectWidth = 0;
-    private final int distanceTolerance = 35;
-    private final int screenTargetX = 200;
+    private final int xTolerance = 10;
+    private final int yTolerance = 10;
+    private final int screenTargetX = 210;
+    private final int screenTargetY = 210;
+    private final int vidaArea = 550 , pilArea = 800 , makasArea = 4500 , tornavidaArea = 2800, wrenchArea = 2500 , penseArea = 3000;
 
+    private boolean  xIsOk = false , yIsOk = false , trackingResetStates = false;
 
   /*** End Tacking State variables ***/
 
@@ -356,12 +361,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
 
+                resetTheBase();
                 trackingState();
 
               }else{
-                if (isDetectedCounter >= detectedDelay)
+                if (isDetectedCounter >= detectedDelay) {
                   isDetected = false;
-
+                  xIsOk = false;
+                  yIsOk = false;
+                  trackingResetStates = false;
+                }
                 if(isAuto && !isDetected) {
                   searchState();
                 }else{
@@ -400,18 +409,60 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   private void trackingState() {
-    int distanceError = screenTargetX - positionX;
-    if (abs(distanceError) < distanceTolerance){
 
+    int xError = screenTargetX - positionX;
+    int yError = screenTargetY - positionY;
+    if (abs(xError) <= xTolerance ){xIsOk = true;}else{xIsOk = false;}
+    if (abs(yError) <= yTolerance ){yIsOk = true;}else{yIsOk = false;}
+    if (xIsOk && yIsOk){
+      catchState();
     }else{
-      if (distanceError > 0){
-        //left()
-      }else{
-        //right()
+      if(!xIsOk){
+        if (xError > 0){
+          try {
+            onFragmentInteraction("s1l#");
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s1r#");
+          }catch (Exception e){ }
+        }
+        trackingResetStates = false;
+      }else if (!yIsOk){
+        if (yError > 0){
+          try {
+            onFragmentInteraction("s4u#");
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s4d#");
+          }catch (Exception e){ }
+        }
+        trackingResetStates = true;
       }
+
     }
 
+  }
 
+  private void resetTheBase() {
+
+    if (!trackingResetStates){
+      try {
+        onFragmentInteraction("s1R#");
+        servo1Value = servo1Reset;
+      }catch (Exception e){ }
+    }else {
+      try {
+        onFragmentInteraction("s4R#");
+        servo4Value = servo4Reset;
+      } catch (Exception e) { }
+    }
+  }
+
+  private void catchState() {
+    motorStop();
+    Toast.makeText(this, "Catching", Toast.LENGTH_SHORT).show();
   }
 
   private int abs(int x) {

@@ -102,6 +102,9 @@ int servoAutoDelay = 20;
 int servo1SearchSpeed = 8;
 int servo4SearchSpeed = 5;
 
+int servo1ResetDelay = 10;
+int servo4ResetDelay = 20;
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 ///***********End Servos************///
 
@@ -485,10 +488,10 @@ void checkAutoCommands(){
         servoWrite(s1,pulselen1,pulselen1 + servo1SearchSpeed);
         pulselen1 += servo1SearchSpeed;
       }else if(cmdValue == "s4R"){
-        servoWrite(s4,pulselen4,pulselen4Rst);
+        servo4WriteR(s4,pulselen4,pulselen4Rst);
         pulselen4 = pulselen4Rst;
       }else if(cmdValue == "s1R"){
-        servoWrite(s1,pulselen1,pulselen1Rst);
+        servo1WriteR(s1,pulselen1,pulselen1Rst);
         pulselen1 = pulselen1Rst;
       }
     }else if(Length > 3){
@@ -544,6 +547,40 @@ void servoWrite(int n , int s , int e){
       delay(servoWriteDelay);
     }
   }
+}
+
+void servo1WriteR(int n , int s , int e){
+  if(s<e){
+    for(int i = s ; i <= e ; i++){
+      pwm.setPWM(n, 0, i);
+      right();
+      delay(servo1ResetDelay);
+
+    }  
+  }else{
+    for(int i = s ; i >= e ; i--){
+      pwm.setPWM(n, 0, i);
+      left();
+      delay(servo1ResetDelay);
+    }
+  }
+  Stop();
+}
+void servo4WriteR(int n , int s , int e){
+  if(s<e){
+    for(int i = s ; i <= e ; i++){
+      pwm.setPWM(n, 0, i);
+      forward();
+      delay(servo4ResetDelay);
+    }  
+  }else{
+    for(int i = s ; i >= e ; i--){
+      pwm.setPWM(n, 0, i);
+      backward();
+      delay(servo4ResetDelay);
+    }
+  }
+  Stop();
 }
 ///*******************End Servo Func********************///
 
