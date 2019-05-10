@@ -191,6 +191,12 @@ public class MultiBoxTracker {
       canvas.drawLine(950 , 900 ,1050 , 900 , targetPaint);
       canvas.drawLine(1000 , 850 ,1000 , 950 , targetPaint);
 
+      Paint catchPaint = new Paint();
+      catchPaint.setColor(Color.MAGENTA);
+      catchPaint.setStrokeWidth(2);
+      canvas.drawLine(1350 , 500 ,1450 , 500 , catchPaint);
+      canvas.drawLine(1400 , 450 ,1400 , 550 , catchPaint);
+
       final String labelString =
           !TextUtils.isEmpty(recognition.title)
               ? String.format("%s %.2f", recognition.title, (100 * recognition.detectionConfidence))

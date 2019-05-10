@@ -128,7 +128,9 @@ public class BluetoothFragment extends Fragment {
 
         mHandler = new Handler(){
             public void handleMessage(android.os.Message msg){
+                /*
                 if(msg.what == MESSAGE_READ){
+
                     String readMessage = null;
                     try {
                         readMessage = new String((byte[]) msg.obj, "UTF-8");
@@ -141,7 +143,7 @@ public class BluetoothFragment extends Fragment {
                     mListener.bluetoothDistance(distance);
 
                 }
-
+                */
                 if(msg.what == CONNECTING_STATUS){
                     if(msg.arg1 == 1){
                         tvFoundedBtName.setText("Device: " + (String)(msg.obj));

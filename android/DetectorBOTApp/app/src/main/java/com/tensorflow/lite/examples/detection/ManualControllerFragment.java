@@ -32,7 +32,7 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
 
 
     private final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
-    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 , servoxMax = 100 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 80 , servoxValueR=0 ;
+    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 80 , servoxValueR=0 ;
 
     private int speedProgress=3 , angelProgress=2 , servo1Value = servo1ValueR , servo2Value = servo2ValueR , servo3Value = servo3ValueR , servo4Value = servo4ValueR , servoxValue=servoxValueR;
     private ImageButton servo1Up,servo1Down,servo3Up,servo3Down,servo2Up,servo2Down,servo4Up,servo4Down;

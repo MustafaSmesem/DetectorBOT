@@ -115,6 +115,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private final int servo1Min = 100;
   private int servo1Value = servo1Reset;
 
+  private final int servo2Reset = 160;
+  private final int servo2Max = 550;
+  private final int servo2Min = 150;
+  private int servo2Value = servo2Reset;
+
+  private final int servo3Reset = 525;
+  private final int servo3Max = 550;
+  private final int servo3Min = 150;
+  private int servo3Value = servo3Reset;
+
   /*** End Servos ***/
 
   private boolean isDetected = false;
@@ -174,6 +184,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private boolean  xIsOk = false , yIsOk = false , trackingResetStates = false;
 
+    private boolean magnetState = false;
   /*** End Tacking State variables ***/
 
 
@@ -361,7 +372,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
 
-                resetTheBase();
                 trackingState();
 
               }else{
@@ -431,18 +441,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       }else if (!yIsOk){
         if (yError > 0){
           try {
-            onFragmentInteraction("s4u#");
+            onFragmentInteraction("s4f#");
           }catch (Exception e){ }
         }else{
           try {
-            onFragmentInteraction("s4d#");
+            onFragmentInteraction("s4b#");
           }catch (Exception e){ }
         }
         trackingResetStates = true;
       }
 
     }
-
+    resetTheBase();
   }
 
   private void resetTheBase() {
@@ -462,7 +472,47 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private void catchState() {
     motorStop();
-    Toast.makeText(this, "Catching", Toast.LENGTH_SHORT).show();
+    try {
+        onFragmentInteraction("C#");
+        servo2Value = 425;
+        servo3Value = 425;
+    } catch (Exception e) { }
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    }
+    if (!magnetState)
+      magnetSwitch();
+    leftState();
+  }
+
+  private void magnetSwitch() {
+    try {
+      onFragmentInteraction("mg#");
+      magnetState = !magnetState;
+    } catch (Exception e) { }
+  }
+
+  private void leftState() {
+     resetServos();
+     if (magnetState)
+       magnetSwitch();
+  }
+
+  private void resetServos() {
+    try {
+      onFragmentInteraction("c#");
+      servo1Value = servo1Reset;
+      servo2Value = servo2Reset;
+      servo3Value = servo3Reset;
+      servo4Value = servo4Reset;
+    } catch (Exception e) { }
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    }
   }
 
   private int abs(int x) {

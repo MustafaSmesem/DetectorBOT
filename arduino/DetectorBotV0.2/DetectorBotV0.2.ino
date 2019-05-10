@@ -101,7 +101,7 @@ int servoWriteDelay = servoManDelay;
 int servoAutoDelay = 20;
 int servo1SearchSpeed = 8;
 int servo4SearchSpeed = 5;
-
+int servo4TrackingSpeed = 8;
 int servo1ResetDelay = 10;
 int servo4ResetDelay = 20;
 
@@ -206,7 +206,7 @@ void setup() {
 void loop() {
   
   checkBluetoothMsg(isAuto);
-  check_arm_distance();
+  //check_arm_distance();
 }
 
 
@@ -378,7 +378,7 @@ void checkCommands(){
       else if(cmdValue == "b")
         backward();
       else if(cmdValue == "c")
-        centerButton();
+        catch1();
       else if(cmdValue == "A")
         isAuto = true;
       else if(cmdValue == "M")
@@ -471,6 +471,10 @@ void checkAutoCommands(){
         isAuto = false;
       else if(cmdValue == "R")
         Reset();
+      else if(cmdValue == "c")
+        centerButton();
+      else if(cmdValue == "C")
+        catch1();
     }else if(Length == 2){
       if(cmdValue == "mg")
         magnetSwitch();
@@ -493,6 +497,12 @@ void checkAutoCommands(){
       }else if(cmdValue == "s1R"){
         servo1WriteR(s1,pulselen1,pulselen1Rst);
         pulselen1 = pulselen1Rst;
+      }else if(cmdValue == "s4f"){
+        servoWrite(s4,pulselen4,pulselen4 - servo4TrackingSpeed);
+        pulselen4 -= servo4TrackingSpeed;
+      }else if(cmdValue == "s4b"){
+        servoWrite(s4,pulselen4,pulselen4 + servo4TrackingSpeed);
+        pulselen4 += servo4TrackingSpeed;
       }
     }else if(Length > 3){
       if(cmdValue[0] == 'p'){
@@ -638,4 +648,21 @@ void goSearch(){
     forward();
   else
     Stop();
+}
+
+void catch1(){
+  forward();
+  delay(800);
+  Stop();
+  for(int i = 0 ; i <= 25 ; i++){
+      pulselen2 += 10;
+      pulselen3 -= 4;
+      pwm.setPWM(s2, 0, pulselen2);
+      pwm.setPWM(s3, 0, pulselen3);
+      delay(50);
+  }
+  pulselen2 = 425;
+  pulselen3 = 425;
+  pwm.setPWM(s2, 0, pulselen2);
+  pwm.setPWM(s3, 0, pulselen3);
 }
