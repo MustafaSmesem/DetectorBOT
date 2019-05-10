@@ -180,16 +180,16 @@ public class MultiBoxTracker {
       Paint gridPaint = new Paint();
       gridPaint.setColor(Color.WHITE);
       gridPaint.setStrokeWidth(1);
-      canvas.drawLine(800 , 400 ,800 , 990 , gridPaint);
-      canvas.drawLine(1200 , 400 ,1200 , 990 , gridPaint);
-      canvas.drawLine(700 , 500 ,1300 , 500 , gridPaint);
-      canvas.drawLine(700 , 900 ,1300 , 900 , gridPaint);
+      canvas.drawLine(800 , 500 ,800 , 1050 , gridPaint);
+      canvas.drawLine(1200 , 500 ,1200 , 1050 , gridPaint);
+      canvas.drawLine(700 , 600 ,1300 , 600 , gridPaint);
+      canvas.drawLine(700 , 1000 ,1300 , 1000 , gridPaint);
 
       Paint targetPaint = new Paint();
       targetPaint.setColor(Color.GREEN);
       targetPaint.setStrokeWidth(2);
-      canvas.drawLine(950 , 700 ,1050 , 700 , targetPaint);
-      canvas.drawLine(1000 , 650 ,1000 , 750 , targetPaint);
+      canvas.drawLine(950 , 900 ,1050 , 900 , targetPaint);
+      canvas.drawLine(1000 , 850 ,1000 , 950 , targetPaint);
 
       final String labelString =
           !TextUtils.isEmpty(recognition.title)

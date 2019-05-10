@@ -27,14 +27,25 @@
         android:background="@color/appPrimaryDarks"
         android:orientation="vertical">
 
+        <ImageButton
+            android:id="@+id/flash_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/brightness_ibtn"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/brightness_ibtn"
+            android:background="@color/transparent"
+            app:srcCompat="@drawable/flash_off" />
+
         <Switch
             android:id="@+id/switchBt_auto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/brightness_ibtn"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="7dp"
-            android:layout_toStartOf="@+id/brightness_ibtn"
+            android:layout_marginTop="-2dp"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@+id/flash_btn"
             android:text="@string/manual_mode"
             android:textAlignment="center"
             android:textColor="#fff"
@@ -47,7 +58,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="11dp"
+            android:layout_marginEnd="7dp"
             android:background="@color/transparent"
             app:srcCompat="@drawable/high_brightness" />
 

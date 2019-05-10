@@ -22,8 +22,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.Image.Plane;
@@ -53,6 +56,7 @@ import com.tensorflow.lite.examples.detection.env.ImageUtils;
 import com.tensorflow.lite.examples.detection.env.Logger;
 
 import java.nio.ByteBuffer;
+import java.security.Policy;
 
 import org.tensorflow.lite.examples.detection.R;
 
@@ -64,9 +68,7 @@ public abstract class CameraActivity extends AppCompatActivity
         ManualControllerFragment.OnFragmentSendListener,
         BluetoothFragment.OnFragmentInteractionListener {
   private static final Logger LOGGER = new Logger();
-
   private static final int PERMISSIONS_REQUEST = 1;
-
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   protected int previewWidth = 0;
   protected int previewHeight = 0;
@@ -83,13 +85,12 @@ public abstract class CameraActivity extends AppCompatActivity
   public boolean isAuto=false;
   public boolean isChanged = false;
   public Switch stAuto;
-  private ImageButton ibtnBrightness;
+  private ImageButton ibtnBrightness , ibtnFlash;
   private boolean brightnessState = false;
   protected TextView armDistanceTv;
   private Fragment fragment;
   private ManualControllerFragment manFragment;
   protected final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
-
   private int[] tabIcons = {
           R.drawable.infor_icon,
           R.drawable.settings_icon,
@@ -99,6 +100,8 @@ public abstract class CameraActivity extends AppCompatActivity
   private TabLayout mTabLayout;
   private TabsAccessorAdapter mTabsAccessorAdapter;
 
+  private boolean flashState = false;
+  private boolean isFragmentSet = false;
 
   protected TextView tvObjectPosx, tvObjectPosy, tvObjectWidth , tvObjectHeight, tvObjectLabel, tvObjectLeft, tvObjectRight , tvObjectTop , tvObjectBottom;
 
@@ -152,13 +155,21 @@ public abstract class CameraActivity extends AppCompatActivity
     });
 
 
-    if (hasPermission()) {
-      setFragment();
-    } else {
-      requestPermission();
-    }
-
-
+    ibtnFlash = findViewById(R.id.flash_btn);
+    ibtnFlash.setVisibility(View.INVISIBLE);
+    ibtnFlash.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        flashState = !flashState;
+        if (flashState){
+          ibtnFlash.setImageResource(R.drawable.flash_on);
+          ((CameraConnectionFragment) fragment).flashOn();
+        }else{
+          ibtnFlash.setImageResource(R.drawable.flash_off);
+          ((CameraConnectionFragment) fragment).flashOff();
+        }
+      }
+    });
 
     manFragment = new ManualControllerFragment();
     getSupportFragmentManager().beginTransaction().add(R.id.container, manFragment , "manualFragment").commit();
@@ -167,11 +178,19 @@ public abstract class CameraActivity extends AppCompatActivity
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if(isChecked){
+          if (hasPermission()) {
+            setFragment();
+          } else {
+            requestPermission();
+          }
+          if (isFragmentSet)
+            ibtnFlash.setVisibility(View.VISIBLE);
           isAuto = true;
           stAuto.setText(R.string.auto_mode);
           getFragmentManager().beginTransaction().replace(R.id.container, fragment , "autoFragment").commit();
           isChanged = true;
         }else{
+          ibtnFlash.setVisibility(View.INVISIBLE);
           isAuto = false;
           isChanged = true;
           stAuto.setText(R.string.manual_mode);
@@ -456,6 +475,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
       camera2Fragment.setCamera(cameraId);
       fragment = camera2Fragment;
+      isFragmentSet = true;
     } else {
       fragment =
           new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
@@ -465,6 +485,8 @@ public abstract class CameraActivity extends AppCompatActivity
   protected void clearFragment() {
     if (fragment != null)
       getFragmentManager().beginTransaction().remove(fragment).commit();
+    isFragmentSet = false;
+    fragment = null;
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {

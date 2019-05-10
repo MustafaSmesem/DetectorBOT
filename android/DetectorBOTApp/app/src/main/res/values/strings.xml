@@ -21,7 +21,7 @@
     <string name="label">Label: </string>
     <string name="output_score">Score: </string>
     <string name="auto_mode">AUTO &#x9;</string>
-    <string name="manual_mode">MANUAL &#x9;</string>
+    <string name="manual_mode">MAN &#x9;</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

@@ -17,6 +17,7 @@ package com.tensorflow.lite.examples.detection;
  */
 
 import android.app.Fragment;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -52,7 +53,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
     ORIENTATIONS.append(Surface.ROTATION_270, 180);
   }
 
-  private Camera camera;
+  public Camera camera;
   private Camera.PreviewCallback imageListener;
   private Size desiredSize;
   /** The layout identifier to inflate for this Fragment. */
@@ -191,6 +192,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
       camera = null;
     }
   }
+
 
   private int getCameraId() {
     CameraInfo ci = new CameraInfo();

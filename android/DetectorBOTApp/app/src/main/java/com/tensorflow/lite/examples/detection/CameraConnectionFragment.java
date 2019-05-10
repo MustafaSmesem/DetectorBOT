@@ -571,4 +571,25 @@ public class CameraConnectionFragment extends Fragment {
           .create();
     }
   }
+
+  public void flashOn(){
+    if (previewRequestBuilder != null){
+      previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE , CaptureRequest.CONTROL_AE_MODE_ON);
+      previewRequestBuilder.set(CaptureRequest.FLASH_MODE , CaptureRequest.FLASH_MODE_TORCH);
+      try {
+        captureSession.setRepeatingRequest(previewRequestBuilder.build() , null,null);
+      } catch (CameraAccessException e) {  }
+    }
+  }
+
+  public void flashOff(){
+    if (previewRequestBuilder != null){
+      previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE , CaptureRequest.CONTROL_AE_MODE_ON);
+      previewRequestBuilder.set(CaptureRequest.FLASH_MODE , CaptureRequest.FLASH_MODE_OFF);
+      try {
+        captureSession.setRepeatingRequest(previewRequestBuilder.build() , null,null);
+      } catch (CameraAccessException e) {  }
+    }
+  }
+
 }

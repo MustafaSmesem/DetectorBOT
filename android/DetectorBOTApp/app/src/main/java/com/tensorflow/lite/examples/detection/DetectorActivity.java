@@ -169,8 +169,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private final int xTolerance = 10;
     private final int yTolerance = 10;
     private final int screenTargetX = 210;
-    private final int screenTargetY = 210;
-    private final int vidaArea = 550 , pilArea = 800 , makasArea = 4500 , tornavidaArea = 2800, wrenchArea = 2500 , penseArea = 3000;
+    private final int screenTargetY = 240;
+    //private final int vidaArea = 550 , pilArea = 800 , makasArea = 4500 , tornavidaArea = 2800, wrenchArea = 2500 , penseArea = 3000;
 
     private boolean  xIsOk = false , yIsOk = false , trackingResetStates = false;
 
