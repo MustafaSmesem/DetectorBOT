@@ -102,8 +102,12 @@ int servoAutoDelay = 20;
 int servo1SearchSpeed = 8;
 int servo4SearchSpeed = 5;
 int servo4TrackingSpeed = 8;
+int servo1TrackingSpeed = 8;
 int servo1ResetDelay = 10;
 int servo4ResetDelay = 20;
+
+int servo4CatchSpeed = 4;
+int servo1CatchSpeed = 4;
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 ///***********End Servos************///
@@ -161,7 +165,7 @@ void setup() {
   Serial.begin(115200);
   Serial3.begin(9600);
   delay(3000);
-  Reset();  
+  Reset(); 
   motorSpeed = 80;
 }
 
@@ -378,7 +382,7 @@ void checkCommands(){
       else if(cmdValue == "b")
         backward();
       else if(cmdValue == "c")
-        catch1();
+        centerButton();
       else if(cmdValue == "A")
         isAuto = true;
       else if(cmdValue == "M")
@@ -473,11 +477,13 @@ void checkAutoCommands(){
         Reset();
       else if(cmdValue == "c")
         centerButton();
-      else if(cmdValue == "C")
-        catch1();
     }else if(Length == 2){
       if(cmdValue == "mg")
         magnetSwitch();
+      else if(cmdValue == "c1")
+        catch1();
+      else if(cmdValue == "c2")
+        catch2();
     }else if(Length == 3){
       if(cmdValue == "s4u"){
         servoWrite(s4,pulselen4,pulselen4 - servo4SearchSpeed);
@@ -486,11 +492,11 @@ void checkAutoCommands(){
         servoWrite(s4,pulselen4,pulselen4 + servo4SearchSpeed);
         pulselen4 += servo4SearchSpeed;
       }else if(cmdValue == "s1r"){
-        servoWrite(s1,pulselen1,pulselen1 - servo1SearchSpeed);
-        pulselen1 -= servo1SearchSpeed;
+        servoWrite(s1,pulselen1,pulselen1 - servo1TrackingSpeed);
+        pulselen1 -= servo1TrackingSpeed;
       }else if(cmdValue == "s1l"){
-        servoWrite(s1,pulselen1,pulselen1 + servo1SearchSpeed);
-        pulselen1 += servo1SearchSpeed;
+        servoWrite(s1,pulselen1,pulselen1 + servo1TrackingSpeed);
+        pulselen1 += servo1TrackingSpeed;
       }else if(cmdValue == "s4R"){
         servo4WriteR(s4,pulselen4,pulselen4Rst);
         pulselen4 = pulselen4Rst;
@@ -503,6 +509,18 @@ void checkAutoCommands(){
       }else if(cmdValue == "s4b"){
         servoWrite(s4,pulselen4,pulselen4 + servo4TrackingSpeed);
         pulselen4 += servo4TrackingSpeed;
+      }else if(cmdValue == "c1r"){
+        servoWrite(s1,pulselen1,pulselen1 - servo1CatchSpeed);
+        pulselen1 -= servo1CatchSpeed;
+      }else if(cmdValue == "c1l"){
+        servoWrite(s1,pulselen1,pulselen1 + servo1CatchSpeed);
+        pulselen1 += servo1CatchSpeed;
+      }else if(cmdValue == "c4u"){
+        servoWrite(s4,pulselen4,pulselen4 - servo4CatchSpeed);
+        pulselen4 -= servo4CatchSpeed;
+      }else if(cmdValue == "c4d"){
+        servoWrite(s4,pulselen4,pulselen4 + servo4CatchSpeed);
+        pulselen4 += servo4CatchSpeed;
       }
     }else if(Length > 3){
       if(cmdValue[0] == 'p'){
@@ -652,17 +670,38 @@ void goSearch(){
 
 void catch1(){
   forward();
-  delay(800);
+  delay(1200);
   Stop();
-  for(int i = 0 ; i <= 25 ; i++){
+  for(int i = 0 ; i <= 22 ; i++){
       pulselen2 += 10;
       pulselen3 -= 4;
+      pulselen4 += 2;
+      pwm.setPWM(s2, 0, pulselen2);
+      pwm.setPWM(s3, 0, pulselen3);
+      pwm.setPWM(s4, 0, pulselen4);
+      delay(50);
+  }
+  pulselen2 = 400;
+  pulselen3 = 400;
+  pulselen4 = 400;
+  pwm.setPWM(s2, 0, pulselen2);
+  pwm.setPWM(s3, 0, pulselen3);
+  pwm.setPWM(s4, 0, pulselen4);
+}
+
+void catch2(){
+  forward();
+  delay(1000);
+  Stop();
+  for(int i = 0 ; i <= 10 ; i++){
+      pulselen2 += 8;
+      pulselen3 -= 3;
       pwm.setPWM(s2, 0, pulselen2);
       pwm.setPWM(s3, 0, pulselen3);
       delay(50);
   }
-  pulselen2 = 425;
-  pulselen3 = 425;
+  pulselen2 = 480;
+  pulselen3 = 370;
   pwm.setPWM(s2, 0, pulselen2);
   pwm.setPWM(s3, 0, pulselen3);
 }

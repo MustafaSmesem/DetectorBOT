@@ -48,16 +48,16 @@ public class MultiBoxTracker {
   private static final float MIN_SIZE = 16.0f;
   // Allow replacement of the tracked box with new results if
   // correlation has dropped below this level.
-  private static final float MARGINAL_CORRELATION = 0.75f;
+  private static final float MARGINAL_CORRELATION = 0.9f;
   // Consider object to be lost if correlation falls below this threshold.
   private static final float MIN_CORRELATION = 0.3f;
   private static final int[] COLORS = {
-    Color.MAGENTA,
-    Color.WHITE,
+    Color.YELLOW,
+    Color.CYAN,
     Color.GREEN,
     Color.RED,
-    Color.CYAN,
-    Color.TRANSPARENT,
+    Color.WHITE,
+    Color.MAGENTA,
     Color.BLUE,
     Color.parseColor("#55FF55"),
     Color.parseColor("#FFA500"),
@@ -170,32 +170,20 @@ public class MultiBoxTracker {
               : new RectF(recognition.location);
 
       getFrameToCanvasMatrix().mapRect(trackedPos);
-      boxPaint.setColor(Color.YELLOW);
+      boxPaint.setColor(recognition.color);
 
       float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
       cornerSize = 50.0f;
       canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
       canvas.drawPoint( trackedPos.centerX() , trackedPos.centerY(), boxPaint);
 
-      Paint gridPaint = new Paint();
+      /*Paint gridPaint = new Paint();
       gridPaint.setColor(Color.WHITE);
       gridPaint.setStrokeWidth(1);
       canvas.drawLine(800 , 500 ,800 , 1050 , gridPaint);
       canvas.drawLine(1200 , 500 ,1200 , 1050 , gridPaint);
       canvas.drawLine(700 , 600 ,1300 , 600 , gridPaint);
-      canvas.drawLine(700 , 1000 ,1300 , 1000 , gridPaint);
-
-      Paint targetPaint = new Paint();
-      targetPaint.setColor(Color.GREEN);
-      targetPaint.setStrokeWidth(2);
-      canvas.drawLine(950 , 900 ,1050 , 900 , targetPaint);
-      canvas.drawLine(1000 , 850 ,1000 , 950 , targetPaint);
-
-      Paint catchPaint = new Paint();
-      catchPaint.setColor(Color.MAGENTA);
-      catchPaint.setStrokeWidth(2);
-      canvas.drawLine(1350 , 500 ,1450 , 500 , catchPaint);
-      canvas.drawLine(1400 , 450 ,1400 , 550 , catchPaint);
+      canvas.drawLine(700 , 1000 ,1300 , 1000 , gridPaint);*/
 
       final String labelString =
           !TextUtils.isEmpty(recognition.title)
@@ -206,6 +194,18 @@ public class MultiBoxTracker {
       borderedText.drawText(
           canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%", boxPaint);
     }
+
+    Paint targetPaint = new Paint();
+    targetPaint.setColor(Color.CYAN);
+    targetPaint.setStrokeWidth(2);
+    canvas.drawLine(800 , 750 ,900 , 750 , targetPaint);
+    canvas.drawLine(850 , 700 ,850 , 800 , targetPaint);
+
+    Paint catchPaint = new Paint();
+    catchPaint.setColor(Color.MAGENTA);
+    catchPaint.setStrokeWidth(2);
+    canvas.drawLine(900 , 800 ,1000 , 800 , catchPaint);
+    canvas.drawLine(950 , 750 ,950 , 850 , catchPaint);
   }
 
 

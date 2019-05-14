@@ -63,7 +63,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.90f;
+  public float MINIMUM_CONFIDENCE_TF_OD_API = 0.9f;
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -178,14 +178,32 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private int objectWidth = 0;
     private final int xTolerance = 10;
     private final int yTolerance = 10;
-    private final int screenTargetX = 210;
-    private final int screenTargetY = 240;
+    private final int screenTargetX = 180;
+    private final int screenTargetY = 200;
     //private final int vidaArea = 550 , pilArea = 800 , makasArea = 4500 , tornavidaArea = 2800, wrenchArea = 2500 , penseArea = 3000;
 
     private boolean  xIsOk = false , yIsOk = false , trackingResetStates = false;
 
     private boolean magnetState = false;
+
+    private char statesFlag = 't';
+    private int servo1TrackingSpeed = 8;
+    private int servo4TrackingSpeed = 8;
   /*** End Tacking State variables ***/
+
+
+  /*** Catch State variables ***/
+  private final int xCTolerance = 5;
+  private final int yCTolerance = 5;
+  private final int screenCatchX = 200;
+  private final int screenCatchY = 220;
+  private boolean  xCIsOk = false , yCIsOk = false;
+
+  private int servo1CatchSpeed = 4;
+  private int servo4CatchSpeed = 4;
+
+  private boolean isCatching = false;
+  /*** END Catch State variables ***/
 
 
   @Override
@@ -254,18 +272,22 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
   protected void resetApp() {
-    try {
-      onFragmentInteraction("R#");
-      servo4Value = servo4Reset;
-      servo1Value = servo1Reset;
-      isDetected = false;
-      isDetectedCounter =0;
-      searchTypeFlag = true;
-      searchArmType = 'u';
-      searchMotorFlag = true;
-      movementCounter = 0;
-      motorStop();
-    }catch (Exception e){      }
+    resetServos();
+    isDetected = false;
+    isDetectedCounter =0;
+    searchTypeFlag = true;
+    searchArmType = 'u';
+    searchMotorFlag = true;
+    movementCounter = 0;
+    xCIsOk = false ;
+    yCIsOk = false ;
+    xIsOk = false ;
+    yIsOk = false ;
+    statesFlag = 't';
+    isCatching = false;
+    trackingResetStates = false;
+
+    motorStop();
 
   }
 
@@ -323,8 +345,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               }
               isChanged = false;
             }
-            LOGGER.i("Running detection on image " + currTimestamp);
+            //LOGGER.i("Running detection on image " + currTimestamp);
             //final long startTime = SystemClock.uptimeMillis();
+
             final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
             //lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
@@ -345,47 +368,75 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
 
-            for (final Classifier.Recognition result : results) {
-              final RectF location = result.getLocation();
-              if (location != null && result.getConfidence() >= minimumConfidence) {
-                motorStop();
-                isDetected = true;
-                isDetectedCounter = 0;
+            Classifier.Recognition result = null;
+            boolean isFirst = true;
+            for (final Classifier.Recognition resulte : results){
+              if (isFirst) {
+                result = resulte;
+                isFirst = false;
+              }
+              else{
+                if (result.getConfidence() < resulte.getConfidence())
+                  result = resulte;
+              }
+            }
 
-                positionX = (int) location.centerX();
-                positionY = (int) location.centerY();
-                objectWidth = (int) (location.right - location.left);
-                objectHeight = (int) (location.bottom - location.top);
-                detectedLabel = result.getTitle();
+            final RectF location = result.getLocation();
+            if (location != null && result.getConfidence() >= minimumConfidence) {
+              motorStop();
+              isDetected = true;
+              isDetectedCounter = 0;
 
-                score = result.getConfidence();
-                score *= 100;
-                scoreS = df.format(score);
+              positionX = (int) location.centerX();
+              positionY = (int) location.centerY();
+              objectWidth = (int) (location.right - location.left);
+              objectHeight = (int) (location.bottom - location.top);
+              detectedLabel = result.getTitle();
 
-                pos[0] = (int) location.left;
-                pos[1] = (int) location.top;
-                pos[2] = (int) location.right;
-                pos[3] = (int) location.bottom;
+              score = result.getConfidence();
+              score *= 100;
+              scoreS = df.format(score);
 
-                canvas.drawPoint(positionX , positionY , paint);
-                cropToFrameTransform.mapRect(location);
-                result.setLocation(location);
-                mappedRecognitions.add(result);
+              pos[0] = (int) location.left;
+              pos[1] = (int) location.top;
+              pos[2] = (int) location.right;
+              pos[3] = (int) location.bottom;
 
-                trackingState();
+              canvas.drawPoint(positionX, positionY, paint);
+              cropToFrameTransform.mapRect(location);
+              result.setLocation(location);
+              mappedRecognitions.add(result);
 
-              }else{
-                if (isDetectedCounter >= detectedDelay) {
-                  isDetected = false;
-                  xIsOk = false;
-                  yIsOk = false;
-                  trackingResetStates = false;
+              switch (statesFlag) {
+                case 't':
+                  trackingState();
+                  break;
+                case 'c':
+                  trackingCatchState();
+                  break;
+                case 'l':
+                  trackingLeftState();
+                  break;
+              }
+
+
+            } else {
+              if (isDetectedCounter >= detectedDelay) {
+                isDetected = false;
+                xIsOk = false;
+                yIsOk = false;
+                trackingResetStates = false;
+                if (statesFlag == 'c') {
+                  statesFlag = 't';
+                  resetServos();
+                  searchTypeFlag = true;
+                  searchArmType = 'u';
                 }
-                if(isAuto && !isDetected) {
-                  searchState();
-                }else{
-                  isDetectedCounter++;
-                }
+              }
+              if (isAuto && !isDetected) {
+                searchState();
+              } else {
+                isDetectedCounter++;
               }
             }
 
@@ -395,27 +446,135 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             computingDetection = false;
 
             runOnUiThread(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    if (isAuto && isDetected){
-                      tvObjectPosx.setText("X: "+positionX);
-                      tvObjectPosy.setText("Y: "+positionY);
-                      tvObjectWidth.setText("W: "+objectWidth);
-                      tvObjectHeight.setText("H: "+objectHeight);
-                      tvObjectLabel.setText("C: "+detectedLabel);
-                      tvObjectLeft.setText("L: "+pos[0]);
-                      tvObjectTop.setText("T: "+pos[1]);
-                      tvObjectRight.setText("R: "+pos[2]);
-                      tvObjectBottom.setText("B: "+pos[3]);
-                    }else {
-                      clearTv();
-                    }
-                  }
-                });
+                    new Runnable() {
+                      @Override
+                      public void run() {
+                        if (isAuto && isDetected){
+                          tvObjectPosx.setText("X: "+positionX);
+                          tvObjectPosy.setText("Y: "+positionY);
+                          tvObjectWidth.setText("W: "+objectWidth);
+                          tvObjectHeight.setText("H: "+objectHeight);
+                          tvObjectLabel.setText("C: "+detectedLabel);
+                          tvObjectLeft.setText("L: "+pos[0]);
+                          tvObjectTop.setText("T: "+pos[1]);
+                          tvObjectRight.setText("R: "+pos[2]);
+                          tvObjectBottom.setText("B: "+pos[3]);
+                        }else {
+                          clearTv();
+                        }
+                      }
+                    });
 
           }
         });
+
+  }
+
+
+  private void trackingLeftState() {
+
+
+  }
+
+  private void trackingCatchState() {
+
+    int xError = screenCatchX - positionX;
+    int yError = screenCatchY - positionY;
+    if (abs(xError) <= xCTolerance ){xCIsOk = true;}else{xCIsOk = false;}
+    if (abs(yError) <= yCTolerance ){yCIsOk = true;}else{yCIsOk = false;}
+    if (xCIsOk && yCIsOk){
+      catchState();
+    }else{
+      /*if(!xCIsOk){
+        if (xError > 0){
+          try {
+            onFragmentInteraction("c1l#");
+            servo1Value += servo1CatchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("c1r#");
+            servo1Value -= servo1CatchSpeed;
+          }catch (Exception e){ }
+        }
+      }else if (!yCIsOk){
+        if (yError > 0){
+          try {
+            onFragmentInteraction("c4u#");
+            servo4Value -= servo4CatchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("c4d#");
+            servo4Value += servo4CatchSpeed;
+          }catch (Exception e){ }
+        }
+      }*/
+
+      if(!xCIsOk){
+        if (xError > 0){
+          try {
+            onFragmentInteraction("s1l#");
+            servo1Value += servo1SearchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s1r#");
+            servo1Value -= servo1SearchSpeed;
+          }catch (Exception e){ }
+        }
+        trackingResetStates = false;
+      }else if (!yCIsOk){
+        if (yError > 0){
+          try {
+            onFragmentInteraction("s4f#");
+            servo4Value -= servo4SearchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s4b#");
+            servo4Value += servo4SearchSpeed;
+          }catch (Exception e){ }
+        }
+        trackingResetStates = true;
+      }
+
+    }
+    resetTheBase();
+
+  }
+
+  private void catchState() {
+
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    }
+
+    if (!magnetState)
+      magnetSwitch();
+
+    catchObject();
+
+  }
+
+  private void catchObject() {
+
+    try {
+      onFragmentInteraction("c2#");
+      servo2Value = 500;
+      servo3Value = 420;
+      statesFlag = 'l';
+    } catch (Exception e) { }
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    }
+
+    leftState();
+
   }
 
   private void trackingState() {
@@ -425,16 +584,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     if (abs(xError) <= xTolerance ){xIsOk = true;}else{xIsOk = false;}
     if (abs(yError) <= yTolerance ){yIsOk = true;}else{yIsOk = false;}
     if (xIsOk && yIsOk){
-      catchState();
+      goCatch();
     }else{
       if(!xIsOk){
         if (xError > 0){
           try {
             onFragmentInteraction("s1l#");
+            servo1Value += servo1SearchSpeed;
           }catch (Exception e){ }
         }else{
           try {
             onFragmentInteraction("s1r#");
+            servo1Value -= servo1SearchSpeed;
           }catch (Exception e){ }
         }
         trackingResetStates = false;
@@ -442,10 +603,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         if (yError > 0){
           try {
             onFragmentInteraction("s4f#");
+            servo4Value -= servo4SearchSpeed;
           }catch (Exception e){ }
         }else{
           try {
             onFragmentInteraction("s4b#");
+            servo4Value += servo4SearchSpeed;
           }catch (Exception e){ }
         }
         trackingResetStates = true;
@@ -470,21 +633,20 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
   }
 
-  private void catchState() {
+  private void goCatch() {
     motorStop();
     try {
-        onFragmentInteraction("C#");
-        servo2Value = 425;
-        servo3Value = 425;
+        onFragmentInteraction("c1#");
+        servo2Value = 400;
+        servo3Value = 400;
+        servo4Value = 400;
+        statesFlag = 'c';
     } catch (Exception e) { }
     try {
       Thread.sleep(5000);
     } catch (InterruptedException e) {
       Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
     }
-    if (!magnetState)
-      magnetSwitch();
-    leftState();
   }
 
   private void magnetSwitch() {
@@ -495,7 +657,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   private void leftState() {
-     resetServos();
+     resetApp();
      if (magnetState)
        magnetSwitch();
   }
@@ -509,7 +671,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       servo4Value = servo4Reset;
     } catch (Exception e) { }
     try {
-      Thread.sleep(3000);
+      Thread.sleep(2000);
     } catch (InterruptedException e) {
       Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
     }

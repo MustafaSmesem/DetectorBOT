@@ -199,11 +199,73 @@ public class TFLiteObjectDetectionAPIModel implements Classifier{
     Trace.beginSection("run");
     tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
     Trace.endSection();
-    final ArrayList<Recognition> recognitions = new ArrayList<>(1);
-    final RectF detection = new RectF(outputLocations[0][0][1] * inputSize,outputLocations[0][0][0] * inputSize,outputLocations[0][0][3] * inputSize,outputLocations[0][0][2] * inputSize);
-    recognitions.add(new Recognition("" + 0,labels.get((int) outputClasses[0][0] + 1),outputScores[0][0],detection));
+    final ArrayList<Recognition> recognitions = new ArrayList<>(NUM_DETECTIONS);
+    for (int i = 0; i < NUM_DETECTIONS; ++i){
+      int labelOffset = 1;
+      final RectF detection = new RectF(
+              outputLocations[0][i][1] * inputSize,
+              outputLocations[0][i][0] * inputSize,
+              outputLocations[0][i][3] * inputSize,
+              outputLocations[0][i][2] * inputSize);
+      recognitions.add(new Recognition("" + i,labels.get((int) outputClasses[0][i] + labelOffset),outputScores[0][i],detection));
+    }
     Trace.endSection(); // "recognizeImage"
     return recognitions;
+
+    /*final ArrayList<Recognition> recognitions = new ArrayList<>(2);
+    for (int i = 0; i < NUM_DETECTIONS; ++i){
+      int labelOffset = 1;
+
+      if (    labels.get((int) outputClasses[0][i] + labelOffset) == "Vida" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Tornavida" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Makas" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Pense" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Pil" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Ingiliz anahtari")
+      {
+        final RectF detection = new RectF(
+                outputLocations[0][i][1] * inputSize,
+                outputLocations[0][i][0] * inputSize,
+                outputLocations[0][i][3] * inputSize,
+                outputLocations[0][i][2] * inputSize);
+        recognitions.add(new Recognition(
+                "" + i,
+                labels.get((int) outputClasses[0][i] + labelOffset),
+                outputScores[0][i],detection));
+
+        break;
+      }else{
+        recognitions.add(null);
+      }
+    }
+    for (int i = 0; i < NUM_DETECTIONS; ++i){
+      int labelOffset = 1;
+
+      if (    labels.get((int) outputClasses[0][i] + labelOffset) == "Tornavida ucu" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Pense ucu" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Makas ucu" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Box front" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Box left" ||
+              labels.get((int) outputClasses[0][i] + labelOffset) == "Box right")
+      {
+        final RectF detection = new RectF(
+                outputLocations[0][i][1] * inputSize,
+                outputLocations[0][i][0] * inputSize,
+                outputLocations[0][i][3] * inputSize,
+                outputLocations[0][i][2] * inputSize);
+        recognitions.add(new Recognition(
+                "" + i,
+                labels.get((int) outputClasses[0][i] + labelOffset),
+                outputScores[0][i],detection));
+
+        break;
+      }else{
+        recognitions.add(null);
+      }
+    }
+    Trace.endSection(); // "recognizeImage"
+    return recognitions;*/
+
   }
 
   @Override

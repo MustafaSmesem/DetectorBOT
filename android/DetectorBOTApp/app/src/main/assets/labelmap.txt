@@ -1,7 +1,13 @@
 ???
 Vida
 Tornavida
+Tornavida ucu
 Makas
-pense
-pil
-Ingiliz anahtari
+Makas ucu
+Pense
+Pense Ucu
+Pil
+Ingliz anahtari
+Box front
+Box left
+Box right
