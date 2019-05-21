@@ -201,11 +201,17 @@ public class MultiBoxTracker {
     canvas.drawLine(800 , 750 ,900 , 750 , targetPaint);
     canvas.drawLine(850 , 700 ,850 , 800 , targetPaint);
 
-    Paint catchPaint = new Paint();
-    catchPaint.setColor(Color.MAGENTA);
-    catchPaint.setStrokeWidth(2);
-    canvas.drawLine(900 , 800 ,1000 , 800 , catchPaint);
-    canvas.drawLine(950 , 750 ,950 , 850 , catchPaint);
+    Paint catch1Paint = new Paint();
+    catch1Paint.setColor(Color.MAGENTA);
+    catch1Paint.setStrokeWidth(2);
+    canvas.drawLine(900 , 800 ,1000 , 800 , catch1Paint);
+    canvas.drawLine(950 , 750 ,950 , 850 , catch1Paint);
+
+    Paint catch2Paint = new Paint();
+    catch2Paint.setColor(Color.RED);
+    catch2Paint.setStrokeWidth(2);
+    canvas.drawLine(1150 , 700 ,1250 , 700 , catch2Paint);
+    canvas.drawLine(1200 , 650 ,1200 , 750 , catch2Paint);
   }
 
 

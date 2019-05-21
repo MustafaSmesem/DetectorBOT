@@ -32,7 +32,7 @@ int minDistance = 30;
 #define bluetoothGND 30
 ///****************End UltraSonic**********************///
 
-
+int catchCounter = 1;
 ///************Time Counters****************///
 unsigned long previousMillis = 0;
 unsigned long distanceMillis = 0;
@@ -83,7 +83,7 @@ boolean msgEnd = false;
 #define pulselen3Rst 525
 #define pulselen4Max 520
 #define pulselen4Min 270
-#define pulselen4Rst 350
+#define pulselen4Rst 375
 
 int s1 = 0;
 int s2 = 2;
@@ -211,6 +211,7 @@ void loop() {
   
   checkBluetoothMsg(isAuto);
   //check_arm_distance();
+  
 }
 
 
@@ -406,6 +407,14 @@ void checkCommands(){
         motorAngel = 180;
       else if(cmdValue == "mg")
         magnetSwitch();
+      else if(cmdValue == "c1")
+        catch1();
+      else if(cmdValue == "c2")
+        catch2();
+      else if(cmdValue == "c3")
+        catch3();
+      else if(cmdValue == "c5")
+        catchReset();
     }else if(Length > 3){
       if(cmdValue[0] == 'p'){
         String pulseValueStr = "";
@@ -484,6 +493,10 @@ void checkAutoCommands(){
         catch1();
       else if(cmdValue == "c2")
         catch2();
+      else if(cmdValue == "c3")
+        catch3();
+      else if(cmdValue == "c5")
+        catchReset();
     }else if(Length == 3){
       if(cmdValue == "s4u"){
         servoWrite(s4,pulselen4,pulselen4 - servo4SearchSpeed);
@@ -578,6 +591,7 @@ void servoWrite(int n , int s , int e){
 }
 
 void servo1WriteR(int n , int s , int e){
+  motorSpeed = 100;
   if(s<e){
     for(int i = s ; i <= e ; i++){
       pwm.setPWM(n, 0, i);
@@ -595,6 +609,7 @@ void servo1WriteR(int n , int s , int e){
   Stop();
 }
 void servo4WriteR(int n , int s , int e){
+  motorSpeed = 100;
   if(s<e){
     for(int i = s ; i <= e ; i++){
       pwm.setPWM(n, 0, i);
@@ -661,6 +676,7 @@ void turnSearch(){
 }
 
 void goSearch(){
+  motorSpeed = 80;
   int distance = sonar2.ping_cm();
   if(distance > minDistance)
     forward();
@@ -669,39 +685,101 @@ void goSearch(){
 }
 
 void catch1(){
-  forward();
-  delay(1200);
-  Stop();
-  for(int i = 0 ; i <= 22 ; i++){
+  for(int i = 0 ; i <= 25 ; i++){
       pulselen2 += 10;
-      pulselen3 -= 4;
+      pulselen3 -= 3;
       pulselen4 += 2;
       pwm.setPWM(s2, 0, pulselen2);
+      delay(5);
       pwm.setPWM(s3, 0, pulselen3);
+      delay(5);
       pwm.setPWM(s4, 0, pulselen4);
       delay(50);
   }
-  pulselen2 = 400;
+  pulselen2 = 430;
   pulselen3 = 400;
   pulselen4 = 400;
   pwm.setPWM(s2, 0, pulselen2);
+  delay(5);
   pwm.setPWM(s3, 0, pulselen3);
+  delay(5);
   pwm.setPWM(s4, 0, pulselen4);
+  motorSpeed = 90;
 }
 
 void catch2(){
-  forward();
-  delay(1000);
-  Stop();
-  for(int i = 0 ; i <= 10 ; i++){
-      pulselen2 += 8;
-      pulselen3 -= 3;
+  for(int i = 0 ; i <= 7 ; i++){
+      pulselen2 += 10;
+      pulselen3 -= 4;
       pwm.setPWM(s2, 0, pulselen2);
+      delay(5);
       pwm.setPWM(s3, 0, pulselen3);
       delay(50);
   }
-  pulselen2 = 480;
-  pulselen3 = 370;
+  pulselen2 = 500;
+  pulselen3 = 372;
   pwm.setPWM(s2, 0, pulselen2);
+  delay(5);
   pwm.setPWM(s3, 0, pulselen3);
+  pulselen4 = 400;
+  pwm.setPWM(s4, 0, pulselen4);
+}
+
+void catch3(){
+  pulselen4 = 340;
+  servoWrite(s4, 400, pulselen4);
+  for(int i = 0 ; i <= 5 ; i++){
+      pulselen2 += 10;
+      pulselen3 += 8;
+      pwm.setPWM(s2, 0, pulselen2);
+      delay(5);
+      pwm.setPWM(s3, 0, pulselen3);
+      delay(50);
+  }
+  pulselen2 = 550;
+  pulselen3 = 410;
+  pwm.setPWM(s2, 0, pulselen2);
+  delay(5);
+  pwm.setPWM(s3, 0, pulselen3);
+}
+
+void catchReset(){
+  pulselen2 = 430;
+  servoWrite(s2,550,pulselen2);
+  delay(50);
+  for(int i = 0 ; i< 27 ; i++){
+    pulselen2 -= 10;
+    pulselen3 += 4;
+    pwm.setPWM(s2, 0, pulselen2);
+    delay(10);
+    pwm.setPWM(s3, 0, pulselen3);
+    delay(10);
+  } 
+  pulselen2 = pulselen2Rst;
+  pulselen3 = pulselen3Rst;
+  pulselen4 = pulselen4Rst;
+  servoWrite(s4, 300, pulselen4);
+  pwm.setPWM(s2, 0, pulselen2);
+  delay(10);
+  pwm.setPWM(s3, 0, pulselen3);
+  delay(100);
+}
+
+void catchTest(){
+  switch(catchCounter){
+    case 1: 
+      catch1();
+      break;
+    case 2: 
+      catch2();
+      break;
+    case 3: 
+      catch3();
+      break; 
+    case 4:
+      catchCounter = 0;
+      catchReset();
+      break;
+  }  
+  catchCounter++;
 }

@@ -32,14 +32,14 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
 
 
     private final String bluetoothFragmentTag = "android:switcher:" + R.id.toolbar_tabs_pager + ":" + 2;
-    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 80 , servoxValueR=0 ;
+    private static final int servo1Max = 225 , servo2Max = 200 , servo3Max = 200 , servo4Max = 250 ,servo1ValueR = 157 , servo2ValueR = 0 , servo3ValueR = 187 , servo4ValueR = 105 , servoxValueR=0 ;
 
-    private int speedProgress=3 , angelProgress=2 , servo1Value = servo1ValueR , servo2Value = servo2ValueR , servo3Value = servo3ValueR , servo4Value = servo4ValueR , servoxValue=servoxValueR;
+    private int speedProgress=2 , angelProgress=2 , servo1Value = servo1ValueR , servo2Value = servo2ValueR , servo3Value = servo3ValueR , servo4Value = servo4ValueR , servoxValue=servoxValueR;
     private ImageButton servo1Up,servo1Down,servo3Up,servo3Down,servo2Up,servo2Down,servo4Up,servo4Down;
     private SeekBar speedBar , servo1Bar , servo4Bar  , angelBar , servo2Bar , servo3Bar;
 
     private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar  , tvServo3Bar , tvServo2Bar , tvAngelBar;
-    private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet;
+    private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet, ibtnCatchState;
 
     private boolean magnetFlag = false;
     private Vibrator vibe;
@@ -57,6 +57,7 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
     private String mParam2;
 
     private OnFragmentSendListener mListener;
+    private int catchCounter = 0;
 
     public ManualControllerFragment() {
         // Required empty public constructor
@@ -160,6 +161,74 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo4Up   = view.findViewById(R.id.servo4_btn_plus);
         servo4Down = view.findViewById(R.id.servo4_btn_sub);
 
+        ibtnCatchState = view.findViewById(R.id.ibtn_catch_state);
+        ibtnCatchState.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(catchCounter){
+                    case 0:
+                        try {
+                            onFragmentInteraction("c1#");
+                            vibe.vibrate(25);
+                            ibtnCatchState.setRotation(-30);
+                            delay(1000);
+                            servo2Value = 140;
+                            servo3Value = 125;
+                            servo2Bar.setProgress(servo2Value);
+                            servo3Bar.setProgress(servo3Value);
+                            servo4Value = 130;
+                            servo4Bar.setProgress(servo4Value);
+                            catchCounter++;
+                            speedProgress = 3;
+                            speedBar.setProgress(speedProgress);
+                        }catch (Exception e){}
+                        break;
+                    case 1:
+                        try {
+                            onFragmentInteraction("c2#");
+                            vibe.vibrate(25);
+                            ibtnCatchState.setRotation(0);
+                            delay(1000);
+                            servo2Value = 175;
+                            servo3Value = 111;
+                            servo2Bar.setProgress(servo2Value);
+                            servo3Bar.setProgress(servo3Value);
+                            catchCounter++;
+                        }catch (Exception e){}
+                        break;
+                    case 2:
+                        try {
+                            onFragmentInteraction("c3#");
+                            vibe.vibrate(25);
+                            ibtnCatchState.setRotation(30);
+                            delay(1000);
+                            servo2Value = 200;
+                            servo3Value = 130;
+                            servo2Bar.setProgress(servo2Value);
+                            servo3Bar.setProgress(servo3Value);
+                            servo4Value = 70;
+                            servo4Bar.setProgress(servo4Value);
+                            catchCounter++;
+                        }catch (Exception e){}
+                        break;
+                    case 3:
+                        try {
+                            onFragmentInteraction("c5#");
+                            vibe.vibrate(25);
+                            ibtnCatchState.setRotation(-90);
+                            delay(2500);
+                            servo2Value = servo2ValueR;
+                            servo3Value = servo3ValueR;
+                            servo2Bar.setProgress(servo2Value);
+                            servo3Bar.setProgress(servo3Value);
+                            servo4Value = servo4ValueR;
+                            servo4Bar.setProgress(servo4Value);
+                            catchCounter = 0;
+                        }catch (Exception e){}
+                        break;
+                }
+            }
+        });
 
         btnMagnet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -782,6 +851,14 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         return view;
     }
 
+    private void delay(int i) {
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void magnetTurn() {
         if (magnetFlag){
             btnMagnet.setImageResource(R.drawable.magnet_off);
@@ -810,6 +887,8 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo2Bar.setProgress(servo2Value);
         servo3Bar.setProgress(servo3Value);
 
+        ibtnCatchState.setRotation(-90);
+        catchCounter = 0;
         try {
             onFragmentInteraction("c#");
             vibe.vibrate(25);
@@ -847,10 +926,10 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         btFragment.sendMsg(msg);
     }
 
-    @Override
+    /*@Override
     public void bluetoothDistance(int d) {
 
-    }
+    }*/
 
 
     /**

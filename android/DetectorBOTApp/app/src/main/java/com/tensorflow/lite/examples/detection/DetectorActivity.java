@@ -105,7 +105,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   /*** Servos ***/
 
-  private final int servo4Reset = 390;
+  private final int servo4Reset = 375;
   private final int servo4Max = 520;
   private final int servo4Min = 270;
   private int servo4Value = servo4Reset;
@@ -127,9 +127,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   /*** End Servos ***/
 
-  private boolean isDetected = false;
+  private boolean isDetected = true;
   private int isDetectedCounter = 0;
-  private int detectedDelay = 20;
+  private int detectedDelay = 15;
   /*** SearchState Variables  ***/
 
     /***
@@ -193,17 +193,36 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
   /*** Catch State variables ***/
-  private final int xCTolerance = 5;
-  private final int yCTolerance = 5;
-  private final int screenCatchX = 200;
-  private final int screenCatchY = 220;
-  private boolean  xCIsOk = false , yCIsOk = false;
+  private final int xC1Tolerance = 5;
+  private final int yC1Tolerance = 5;
+  private final int screenCatch1X = 200;
+  private final int screenCatch1Y = 220;
+  private boolean  xC1IsOk = false , yC1IsOk = false;
+
+  private final int xC2Tolerance = 20;
+  private final int yC2Tolerance = 5;
+  private final int screenCatch2X = 230;
+  private final int screenCatch2Y = 230;
+  private boolean  xC2IsOk = false , yC2IsOk = false;
 
   private int servo1CatchSpeed = 4;
   private int servo4CatchSpeed = 4;
 
   private boolean isCatching = false;
   /*** END Catch State variables ***/
+
+  private final String[] trackingLabels = {"Vida", "Tornavida", "Makas", "Pense", "Pil", "Ingliz anahtari"};
+  private final String[] catchingLabels = {"Vida", "Tornavida ucu", "Makas ucu", "Pense ucu", "Pil", "Ingliz anahtari"};
+  private final String[] boxLabels = {"Box front", "Box left", "Box right"};
+
+  private boolean detectState = false;
+  private String LAST_DETECTED_LABEL = "";
+
+  private char searchCatchType = 'u';
+  private int servoCatchCounter = 0;
+  private final int catchSearchDelay = 7;
+  private final int trackingDelay = 50;
+  private int isCatchingCounter=0;
 
 
   @Override
@@ -279,8 +298,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     searchArmType = 'u';
     searchMotorFlag = true;
     movementCounter = 0;
-    xCIsOk = false ;
-    yCIsOk = false ;
+    xC1IsOk = false ;
+    yC1IsOk = false ;
+    xC2IsOk = false ;
+    yC2IsOk = false ;
     xIsOk = false ;
     yIsOk = false ;
     statesFlag = 't';
@@ -368,77 +389,190 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
 
-            Classifier.Recognition result = null;
-            boolean isFirst = true;
-            for (final Classifier.Recognition resulte : results){
-              if (isFirst) {
-                result = resulte;
-                isFirst = false;
-              }
-              else{
-                if (result.getConfidence() < resulte.getConfidence())
-                  result = resulte;
-              }
-            }
-
-            final RectF location = result.getLocation();
-            if (location != null && result.getConfidence() >= minimumConfidence) {
-              motorStop();
-              isDetected = true;
-              isDetectedCounter = 0;
-
-              positionX = (int) location.centerX();
-              positionY = (int) location.centerY();
-              objectWidth = (int) (location.right - location.left);
-              objectHeight = (int) (location.bottom - location.top);
-              detectedLabel = result.getTitle();
-
-              score = result.getConfidence();
-              score *= 100;
-              scoreS = df.format(score);
-
-              pos[0] = (int) location.left;
-              pos[1] = (int) location.top;
-              pos[2] = (int) location.right;
-              pos[3] = (int) location.bottom;
-
-              canvas.drawPoint(positionX, positionY, paint);
-              cropToFrameTransform.mapRect(location);
-              result.setLocation(location);
-              mappedRecognitions.add(result);
-
-              switch (statesFlag) {
-                case 't':
-                  trackingState();
+            /*for (final Classifier.Recognition result : results){
+              String label = result.getTitle();
+              if (statesFlag == 'l'){
+                if (isContent(boxLabels , label)){
+                  detecting(result , canvas , minimumConfidence , paint , mappedRecognitions);
                   break;
-                case 'c':
-                  trackingCatchState();
-                  break;
-                case 'l':
-                  trackingLeftState();
-                  break;
-              }
-
-
-            } else {
-              if (isDetectedCounter >= detectedDelay) {
-                isDetected = false;
-                xIsOk = false;
-                yIsOk = false;
-                trackingResetStates = false;
-                if (statesFlag == 'c') {
-                  statesFlag = 't';
-                  resetServos();
-                  searchTypeFlag = true;
-                  searchArmType = 'u';
                 }
+              }else if (statesFlag == 'k'){
+                if (isContent(catchingLabels , label)){
+                  detecting(result , canvas , minimumConfidence , paint , mappedRecognitions);
+                  break;
+                }
+              }else{
+                detecting(result , canvas , minimumConfidence , paint , mappedRecognitions);
+                break;
               }
-              if (isAuto && !isDetected) {
-                searchState();
+            }*/
+
+            for (final Classifier.Recognition result : results){
+              final RectF location = result.getLocation();
+              if (location != null && result.getConfidence() >= minimumConfidence) {
+                motorStop();
+
+                positionX = (int) location.centerX();
+                positionY = (int) location.centerY();
+                objectWidth = (int) (location.right - location.left);
+                objectHeight = (int) (location.bottom - location.top);
+
+                score = result.getConfidence();
+                score *= 100;
+                scoreS = df.format(score);
+
+                pos[0] = (int) location.left;
+                pos[1] = (int) location.top;
+                pos[2] = (int) location.right;
+                pos[3] = (int) location.bottom;
+
+                canvas.drawRect(location, paint);
+                cropToFrameTransform.mapRect(location);
+                result.setLocation(location);
+                mappedRecognitions.add(result);
+
+                detectedLabel = result.getTitle();
+                if (statesFlag == 'l'){
+                  trackingLeftState();
+                  /*if (isContent(boxLabels , detectedLabel)){
+                    detectState = true;
+                    isDetected = true;
+                    isDetectedCounter = 0;
+                    trackingLeftState();
+                  }else{
+                    isDetected = false;
+                    searchState();
+                  }*/
+                }else if(statesFlag == 'k'){
+                  switch (LAST_DETECTED_LABEL){
+                    case "Tornavida":
+                      if (detectedLabel.equals("Tornavida ucu")){
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                    case "Makas":
+                      if (detectedLabel.equals("Makas ucu")){
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                    case "Pense":
+                      if (detectedLabel.equals("Pense ucu")){
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                    case "Pil":
+                      if (detectedLabel.equals("Pil")){
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                    case "Ingliz anahtari":
+                      if (detectedLabel.equals("Ingliz anahtari")) {
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                    case "Vida":
+                      if (detectedLabel.equals("Vida")){
+                        detectState = true;
+                        isCatching = true;
+                        isCatchingCounter = 0;
+                        trackingCatch2State();
+                      }else{
+                        isCatching = false;
+                        catchSearch();
+                      }
+                      break;
+                  }
+                }else if(statesFlag == 'c'){
+                  if (!isContent(boxLabels,detectedLabel)){
+                    trackingCatch1State();
+                    detectState = true;
+                    isCatching = true;
+                    isCatchingCounter = 0;
+                    LAST_DETECTED_LABEL = detectedLabel;
+                  }else{
+                    isCatching = false;
+                    catchSearch();
+                  }
+                }else{
+                  if (!isContent(boxLabels,detectedLabel)){
+                    trackingState();
+                    detectState = true;
+                    isDetected = true;
+                    isDetectedCounter = 0;
+                  }else{
+                    isDetected = false;
+                    searchState();
+                  }
+                }
+
               } else {
-                isDetectedCounter++;
+                if (isDetectedCounter >= detectedDelay ) {
+                  isDetected = false;
+                  xIsOk = false;
+                  yIsOk = false;
+                  trackingResetStates = false;
+                }
+                if (isCatchingCounter >= detectedDelay){
+                  isCatching = false;
+                  isCatchingCounter = 0;
+                  trackingResetStates = false;
+                  xC1IsOk = false;
+                  yC1IsOk = false;
+                  xC2IsOk = false;
+                  yC2IsOk = false;
+                }
+                if (statesFlag == 't'){
+                  if (isAuto && !isDetected) {
+                    searchState();
+                  } else {
+                    isDetectedCounter++;
+                  }
+                }else if (statesFlag== 'c' || statesFlag == 'k'){
+                  if (isAuto && !isCatching) {
+                    catchSearch();
+                  } else {
+                    isCatchingCounter++;
+                  }
+                }
+
               }
+
+              if (detectState)
+                break;
+
+              detectState = false;
             }
+
 
             tracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
             trackingOverlay.postInvalidate();
@@ -471,47 +605,129 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
 
-  private void trackingLeftState() {
-
-
+  private boolean isContent(String[] labels, String label) {
+    for (int i = 0; i < labels.length;i++){
+      String newLabel = labels[i];
+      if (label.equals(newLabel))
+        return true;
+    }
+    return false;
   }
 
-  private void trackingCatchState() {
+  private void trackingLeftState() {
+    //delay(2000);
+    leftState();
+  }
 
-    int xError = screenCatchX - positionX;
-    int yError = screenCatchY - positionY;
-    if (abs(xError) <= xCTolerance ){xCIsOk = true;}else{xCIsOk = false;}
-    if (abs(yError) <= yCTolerance ){yCIsOk = true;}else{yCIsOk = false;}
-    if (xCIsOk && yCIsOk){
-      catchState();
+  private void catch1(){
+    motorStop();
+    delay(500);
+    try {
+      onFragmentInteraction("f#");
+    } catch (Exception e) { }
+    delay(800);
+    motorStop();
+    try {
+      onFragmentInteraction("c1#");
+      servo4Value = 400;
+      servo2Value = 430;
+      servo3Value = 400;
+      statesFlag = 'c';
+    } catch (Exception e) { }
+    delay(5000);
+  }
+
+  private void catch2(){
+    delay(500);
+    try {
+      onFragmentInteraction("f#");
+    } catch (Exception e) { }
+    delay(250);
+    motorStop();
+    try {
+      onFragmentInteraction("c2#");
+      servo2Value = 500;
+      servo3Value = 372;
+      statesFlag = 'k';
+    } catch (Exception e) { }
+    delay(5000);
+  }
+
+  private void catch3(){
+    if (!magnetState)
+      magnetSwitch();
+    delay(500);
+    try {
+      onFragmentInteraction("c3#");
+      servo2Value = 550;
+      servo3Value = 352;
+      statesFlag = 'l';
+    } catch (Exception e) { }
+    delay(5000);
+    resetCatch();
+    delay(3000);
+  }
+
+  private void catchSearch() {
+
+    if (searchCatchType == 'u'){
+      servo4Value -= servo4SearchSpeed;
+      servoCatchCounter++;
+      try {
+        onFragmentInteraction("s4u#");
+      }catch (Exception e){ }
+      if (servoCatchCounter >= catchSearchDelay){
+        searchCatchType = 'd';
+        servoCatchCounter = 0;
+      }
+    }else if (searchCatchType == 'd'){
+      servo4Value += servo4SearchSpeed;
+      servoCatchCounter++;
+      try {
+        onFragmentInteraction("s4d#");
+      }catch (Exception e){      }
+      if (servoCatchCounter >= catchSearchDelay){
+        searchCatchType = 'r';
+        servoCatchCounter = 0;
+      }
+    }
+
+
+    else if (searchCatchType == 'r'){
+      try {
+        onFragmentInteraction("s1r#");
+        servo1Value -= servo1SearchSpeed;
+        servoCatchCounter++;
+      }catch (Exception e){      }
+      if (servoCatchCounter >= catchSearchDelay){
+        searchCatchType = 'l';
+        servoCatchCounter = 0;
+      }
+    }else if (searchCatchType == 'l'){
+      try {
+        onFragmentInteraction("s1l#");
+        servo1Value += servo1SearchSpeed;
+        servoCatchCounter++;
+      }catch (Exception e){      }
+      if (servoCatchCounter >= catchSearchDelay){
+        searchCatchType = 'u';
+        servoCatchCounter = 0;
+      }
+    }
+    resetTheBase();
+    delay(trackingDelay*2);
+  }
+
+  private void trackingCatch1State() {
+
+    int xError = screenCatch1X - positionX;
+    int yError = screenCatch1Y - positionY;
+    if (abs(xError) <= xC1Tolerance ){xC1IsOk = true;}else{xC1IsOk = false;}
+    if (abs(yError) <= yC1Tolerance ){yC1IsOk = true;}else{yC1IsOk = false;}
+    if (xC1IsOk && yC1IsOk){
+      catch2();
     }else{
-      /*if(!xCIsOk){
-        if (xError > 0){
-          try {
-            onFragmentInteraction("c1l#");
-            servo1Value += servo1CatchSpeed;
-          }catch (Exception e){ }
-        }else{
-          try {
-            onFragmentInteraction("c1r#");
-            servo1Value -= servo1CatchSpeed;
-          }catch (Exception e){ }
-        }
-      }else if (!yCIsOk){
-        if (yError > 0){
-          try {
-            onFragmentInteraction("c4u#");
-            servo4Value -= servo4CatchSpeed;
-          }catch (Exception e){ }
-        }else{
-          try {
-            onFragmentInteraction("c4d#");
-            servo4Value += servo4CatchSpeed;
-          }catch (Exception e){ }
-        }
-      }*/
-
-      if(!xCIsOk){
+      if(!xC1IsOk){
         if (xError > 0){
           try {
             onFragmentInteraction("s1l#");
@@ -524,7 +740,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
           }catch (Exception e){ }
         }
         trackingResetStates = false;
-      }else if (!yCIsOk){
+      }else if (!yC1IsOk){
         if (yError > 0){
           try {
             onFragmentInteraction("s4f#");
@@ -541,40 +757,58 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     }
     resetTheBase();
+    delay(trackingDelay*2);
 
   }
 
-  private void catchState() {
+  private void trackingCatch2State() {
 
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    int xError = screenCatch2X - positionX;
+    int yError = screenCatch2Y - positionY;
+    if (abs(xError) <= xC2Tolerance ){xC2IsOk = true;}else{xC2IsOk = false;}
+    if (abs(yError) <= yC2Tolerance ){yC2IsOk = true;}else{yC2IsOk = false;}
+    if (xC2IsOk && yC2IsOk){
+      catch3();
+    }else{
+      if(!xC2IsOk){
+        if (xError > 0){
+          try {
+            onFragmentInteraction("s1l#");
+            servo1Value += servo1SearchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s1r#");
+            servo1Value -= servo1SearchSpeed;
+          }catch (Exception e){ }
+        }
+        trackingResetStates = false;
+      }else if (!yC2IsOk){
+        if (yError > 0){
+          try {
+            onFragmentInteraction("s4f#");
+            servo4Value -= servo4SearchSpeed;
+          }catch (Exception e){ }
+        }else{
+          try {
+            onFragmentInteraction("s4b#");
+            servo4Value += servo4SearchSpeed;
+          }catch (Exception e){ }
+        }
+        trackingResetStates = true;
+      }
+
     }
-
-    if (!magnetState)
-      magnetSwitch();
-
-    catchObject();
-
+    resetTheBase();
+    delay(trackingDelay*2);
   }
 
-  private void catchObject() {
-
+  private void delay(int delay){
     try {
-      onFragmentInteraction("c2#");
-      servo2Value = 500;
-      servo3Value = 420;
-      statesFlag = 'l';
-    } catch (Exception e) { }
-    try {
-      Thread.sleep(2000);
+      Thread.sleep(delay);
     } catch (InterruptedException e) {
-      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+      e.printStackTrace();
     }
-
-    leftState();
-
   }
 
   private void trackingState() {
@@ -584,7 +818,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     if (abs(xError) <= xTolerance ){xIsOk = true;}else{xIsOk = false;}
     if (abs(yError) <= yTolerance ){yIsOk = true;}else{yIsOk = false;}
     if (xIsOk && yIsOk){
-      goCatch();
+      catch1();
     }else{
       if(!xIsOk){
         if (xError > 0){
@@ -616,6 +850,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     }
     resetTheBase();
+    delay(trackingDelay);
   }
 
   private void resetTheBase() {
@@ -633,22 +868,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
   }
 
-  private void goCatch() {
-    motorStop();
-    try {
-        onFragmentInteraction("c1#");
-        servo2Value = 400;
-        servo3Value = 400;
-        servo4Value = 400;
-        statesFlag = 'c';
-    } catch (Exception e) { }
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e) {
-      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
-    }
-  }
-
   private void magnetSwitch() {
     try {
       onFragmentInteraction("mg#");
@@ -657,9 +876,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   private void leftState() {
-     resetApp();
-     if (magnetState)
-       magnetSwitch();
+    resetApp();
+    if (magnetState)
+      magnetSwitch();
   }
 
   private void resetServos() {
@@ -677,6 +896,21 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
   }
 
+  private void resetCatch() {
+    try {
+      onFragmentInteraction("c5#");
+      servo1Value = servo1Reset;
+      servo2Value = servo2Reset;
+      servo3Value = servo3Reset;
+      servo4Value = servo4Reset;
+    } catch (Exception e) { }
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
+    }
+  }
+
   private int abs(int x) {
     if (x<0)
       return (x *= -1);
@@ -684,12 +918,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       return x;
   }
 
-
   private void searchState() {
     if(searchTypeFlag)
       armCheck();
     else
       motorCheck();
+    delay(trackingDelay);
   }
 
   private void motorCheck() {
@@ -773,6 +1007,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }catch (Exception e){      }
   }
 
+
+
+
   @Override
   protected int getLayoutId() {
     return R.layout.camera_connection_fragment_tracking;
@@ -800,11 +1037,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     btFragment.sendMsg(msg);
   }
 
-  @Override
+  /*@Override
   public void bluetoothDistance(int d) {
     armDistance = d;
     armDistanceTv.setText(armDistance+" cm");
-  }
+  }*/
 
   @Override
   public void onFragmentSend(String msg) {
@@ -845,4 +1082,68 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
   }
+
+  /*private void detecting(Classifier.Recognition result, Canvas canvas, float minimumConfidence, Paint paint, List<Classifier.Recognition> mappedRecognitions) {
+    final RectF location = result.getLocation();
+    if (location != null && result.getConfidence() >= minimumConfidence) {
+      motorStop();
+      isDetected = true;
+      isDetectedCounter = 0;
+
+      positionX = (int) location.centerX();
+      positionY = (int) location.centerY();
+      objectWidth = (int) (location.right - location.left);
+      objectHeight = (int) (location.bottom - location.top);
+      detectedLabel = result.getTitle();
+
+      score = result.getConfidence();
+      score *= 100;
+      scoreS = df.format(score);
+
+      pos[0] = (int) location.left;
+      pos[1] = (int) location.top;
+      pos[2] = (int) location.right;
+      pos[3] = (int) location.bottom;
+
+      canvas.drawRect(location, paint);
+      cropToFrameTransform.mapRect(location);
+      result.setLocation(location);
+      mappedRecognitions.add(result);
+
+      switch (statesFlag) {
+        case 't':
+          trackingState();
+          break;
+        case 'c':
+          trackingCatchState();
+          break;
+        case 'k':
+          catchState();
+          break;
+        case 'l':
+          trackingLeftState();
+          break;
+      }
+
+
+    } else {
+      if (isDetectedCounter >= detectedDelay) {
+        isDetected = false;
+        xIsOk = false;
+        yIsOk = false;
+        trackingResetStates = false;
+        if (statesFlag == 'c' || statesFlag == 'l' || statesFlag == 'k') {
+          statesFlag = 't';
+          resetServos();
+          searchTypeFlag = true;
+          searchArmType = 'u';
+        }
+      }
+      if (isAuto && !isDetected) {
+        searchState();
+      } else {
+        isDetectedCounter++;
+      }
+    }
+  }*/
 }
