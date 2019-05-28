@@ -692,12 +692,9 @@ void catch1(){
   for(int i = 0 ; i <= 25 ; i++){
       pulselen2 += 10;
       pulselen3 -= 3;
-      pulselen4 += 2;
       pwm.setPWM(s2, 0, pulselen2);
       delay(5);
       pwm.setPWM(s3, 0, pulselen3);
-      delay(5);
-      pwm.setPWM(s4, 0, pulselen4);
       delay(50);
   }
   pulselen2 = 430;
@@ -708,7 +705,6 @@ void catch1(){
   pwm.setPWM(s3, 0, pulselen3);
   delay(5);
   pwm.setPWM(s4, 0, pulselen4);
-  motorSpeed = 90;
 }
 
 void catch2(){
@@ -725,9 +721,6 @@ void catch2(){
   pwm.setPWM(s2, 0, pulselen2);
   delay(10);
   pwm.setPWM(s3, 0, pulselen3);
-  delay(10);
-  pulselen4 = 400;
-  pwm.setPWM(s4, 0, pulselen4);
 }
 
 void catch3(){
@@ -780,8 +773,12 @@ void catchReset(){
 }
 
 void leftState(){
+  servoWriteDelay = 3;
   Reset();
   delay(100);
+  pulselen1 = 100;
+  servoWrite(s1,pulselen1Rst,pulselen1);
+  delay(500);
   for(int i = 0 ; i <= 25 ; i++){
     pulselen2 += 5;
     pulselen3 -= 4;
@@ -795,22 +792,7 @@ void leftState(){
     }
     delay(50);
   }
-  for(int i = 0 ; i <= 5 ; i++){
-    pulselen2 += 9;
-    pulselen3 -= 3;
-    pulselen4 += 3;
-    pwm.setPWM(s2, 0, pulselen2);
-    delay(5);
-    pwm.setPWM(s3, 0, pulselen3);
-    delay(5);
-    pwm.setPWM(s4, 0, pulselen4);
-    delay(50);
-  }
-  delay(50);
-  pulselen1 = 100;
-  servoWrite(s1,pulselen1Rst,pulselen1);
-  delay(500);
-  for(int i = 0 ; i <= 15 ; i++){
+  for(int i = 0 ; i <= 20 ; i++){
     pulselen2 += 9;
     pulselen3 -= 3;
     pulselen4 += 3;
@@ -823,13 +805,7 @@ void leftState(){
   }
   delay(500);
   magnetSwitch();
-  pulselen4 = 350;
-  servoWrite(s4,410,pulselen4);
-  delay(200);
-  pulselen4 = 410;
-  servoWrite(s4,350,pulselen4);
-  delay(200);
-  delay(1000);
+  delay(1500);
   pulselen4 = 350;
   servoWrite(s4,410,pulselen4);
   delay(200);
