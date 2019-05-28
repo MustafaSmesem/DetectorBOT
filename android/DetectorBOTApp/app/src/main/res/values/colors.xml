@@ -10,6 +10,7 @@
     <color name="appPrimary">#79A6B3</color>
     <color name="appPrimaryDark">#014455</color>
     <color name="appPrimaryDarks">#003846</color>
+    <color name="appPrimaryDarksTrans">#7A003846</color>
     <color name="redColor">#DE0000</color>
     <color name="greenColor">#16721A</color>
     <color name="yellowColor">#FFC107</color>

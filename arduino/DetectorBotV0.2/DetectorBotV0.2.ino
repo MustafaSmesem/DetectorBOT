@@ -415,6 +415,8 @@ void checkCommands(){
         catch3();
       else if(cmdValue == "c5")
         catchReset();
+      else if(cmdValue == "l1")
+        leftState();
     }else if(Length > 3){
       if(cmdValue[0] == 'p'){
         String pulseValueStr = "";
@@ -497,6 +499,8 @@ void checkAutoCommands(){
         catch3();
       else if(cmdValue == "c5")
         catchReset();
+      else if(cmdValue == "l1")
+        leftState();
     }else if(Length == 3){
       if(cmdValue == "s4u"){
         servoWrite(s4,pulselen4,pulselen4 - servo4SearchSpeed);
@@ -719,34 +723,44 @@ void catch2(){
   pulselen2 = 500;
   pulselen3 = 372;
   pwm.setPWM(s2, 0, pulselen2);
-  delay(5);
+  delay(10);
   pwm.setPWM(s3, 0, pulselen3);
+  delay(10);
   pulselen4 = 400;
   pwm.setPWM(s4, 0, pulselen4);
 }
 
 void catch3(){
   pulselen4 = 340;
-  servoWrite(s4, 400, pulselen4);
-  for(int i = 0 ; i <= 5 ; i++){
-      pulselen2 += 10;
-      pulselen3 += 8;
+  pwm.setPWM(s4, 0, pulselen4);
+  for(int i = 0 ; i <= 20 ; i++){
+      if(i < 5)
+        pulselen2 += 4;
+      else if(i < 10)
+        pulselen2 += 3;
+      else if(i < 15)
+        pulselen2 += 2;
+      else
+        pulselen2 += 1;
       pwm.setPWM(s2, 0, pulselen2);
       delay(5);
-      pwm.setPWM(s3, 0, pulselen3);
+      if(i < 10){
+        pulselen3 += 4;
+        pwm.setPWM(s3, 0, pulselen3);
+      }
       delay(50);
   }
   pulselen2 = 550;
-  pulselen3 = 410;
+  pulselen3 = 412;
   pwm.setPWM(s2, 0, pulselen2);
-  delay(5);
+  delay(10);
   pwm.setPWM(s3, 0, pulselen3);
 }
 
 void catchReset(){
   pulselen2 = 430;
   servoWrite(s2,550,pulselen2);
-  delay(50);
+  delay(500);
   for(int i = 0 ; i< 27 ; i++){
     pulselen2 -= 10;
     pulselen3 += 4;
@@ -762,6 +776,80 @@ void catchReset(){
   pwm.setPWM(s2, 0, pulselen2);
   delay(10);
   pwm.setPWM(s3, 0, pulselen3);
+  delay(100);
+}
+
+void leftState(){
+  Reset();
+  delay(100);
+  for(int i = 0 ; i <= 25 ; i++){
+    pulselen2 += 5;
+    pulselen3 -= 4;
+    pwm.setPWM(s2, 0, pulselen2);
+    delay(5);
+    pwm.setPWM(s3, 0, pulselen3);
+    delay(5);
+    if(pulselen4 > 350){
+      pulselen4 -= 5;
+      pwm.setPWM(s4, 0, pulselen4);
+    }
+    delay(50);
+  }
+  for(int i = 0 ; i <= 5 ; i++){
+    pulselen2 += 9;
+    pulselen3 -= 3;
+    pulselen4 += 3;
+    pwm.setPWM(s2, 0, pulselen2);
+    delay(5);
+    pwm.setPWM(s3, 0, pulselen3);
+    delay(5);
+    pwm.setPWM(s4, 0, pulselen4);
+    delay(50);
+  }
+  delay(50);
+  pulselen1 = 100;
+  servoWrite(s1,pulselen1Rst,pulselen1);
+  delay(500);
+  for(int i = 0 ; i <= 15 ; i++){
+    pulselen2 += 9;
+    pulselen3 -= 3;
+    pulselen4 += 3;
+    pwm.setPWM(s2, 0, pulselen2);
+    delay(5);
+    pwm.setPWM(s3, 0, pulselen3);
+    delay(5);
+    pwm.setPWM(s4, 0, pulselen4);
+    delay(50);
+  }
+  delay(500);
+  magnetSwitch();
+  pulselen4 = 350;
+  servoWrite(s4,410,pulselen4);
+  delay(200);
+  pulselen4 = 410;
+  servoWrite(s4,350,pulselen4);
+  delay(200);
+  delay(1000);
+  pulselen4 = 350;
+  servoWrite(s4,410,pulselen4);
+  delay(200);
+  for(int i = 0 ; i <= 20 ; i++){
+    pulselen2 -= 11;
+    pulselen3 += 8;
+    pwm.setPWM(s2, 0, pulselen2);
+    delay(5);
+    pwm.setPWM(s3, 0, pulselen3);
+    delay(50);
+  }
+  delay(50);
+  pulselen2 = pulselen2Rst;
+  servoWrite(s2,250,pulselen2);
+  delay(50);
+  pulselen1 = pulselen1Rst;
+  servoWrite(s1,100,pulselen1);
+  delay(50);
+  pulselen4 = pulselen4Rst;
+  servoWrite(s4,350,pulselen4);
   delay(100);
 }
 

@@ -8,6 +8,6 @@ Pense
 Pense ucu
 Pil
 Ingliz anahtari
-Box front
-Box left
-Box right
+Box
+Box
+Box

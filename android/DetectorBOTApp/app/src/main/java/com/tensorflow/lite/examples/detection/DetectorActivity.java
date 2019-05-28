@@ -663,7 +663,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       servo3Value = 352;
       statesFlag = 'l';
     } catch (Exception e) { }
-    delay(5000);
+    delay(2000);
     resetCatch();
     delay(3000);
   }
@@ -715,7 +715,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       }
     }
     resetTheBase();
-    delay(trackingDelay*2);
+    delay(trackingDelay*5);
   }
 
   private void trackingCatch1State() {
@@ -757,7 +757,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     }
     resetTheBase();
-    delay(trackingDelay*2);
+    delay(trackingDelay*10);
 
   }
 
@@ -800,7 +800,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     }
     resetTheBase();
-    delay(trackingDelay*2);
+    delay(trackingDelay*10);
   }
 
   private void delay(int delay){
@@ -850,7 +850,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     }
     resetTheBase();
-    delay(trackingDelay);
+    delay(trackingDelay*2);
   }
 
   private void resetTheBase() {
@@ -876,9 +876,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   private void leftState() {
-    resetApp();
-    if (magnetState)
-      magnetSwitch();
+      try {
+          onFragmentInteraction("l1#");
+      } catch (Exception e) { }
+      magnetState =false;
+      delay(20000);
+      resetApp();
   }
 
   private void resetServos() {
@@ -904,11 +907,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       servo3Value = servo3Reset;
       servo4Value = servo4Reset;
     } catch (Exception e) { }
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException e) {
-      Toast.makeText(this, "cannot sleeping", Toast.LENGTH_SHORT).show();
-    }
+    delay(500);
+    leftState();
   }
 
   private int abs(int x) {

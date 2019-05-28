@@ -25,17 +25,15 @@
         android:layout_below="@+id/tv_progress_angel"
         android:layout_alignStart="@+id/tv_progress_angel"
         android:max="3"
-        android:progress="2"
-        />
+        android:progress="2" />
 
     <TableRow
         android:id="@+id/buttonsContainer"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/angel_bar"
-        android:layout_marginTop="20dp"
         android:layout_alignStart="@+id/angel_bar"
-        >
+        android:layout_marginTop="20dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -161,10 +159,11 @@
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/buttonsContainer"
-        android:layout_marginTop="15dp"
         android:layout_alignStart="@id/buttonsContainer"
+        android:layout_marginTop="15dp"
         android:text="2"
         android:textAlignment="center" />
+
     <SeekBar
         android:id="@+id/speed_bar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
@@ -181,8 +180,8 @@
         android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
         android:layout_alignParentEnd="true"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="40dp"
         android:max="270"
         android:progress="150"
@@ -207,8 +206,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/servo4_seek_bar"
-        android:layout_marginStart="25dp"
         android:layout_alignTop="@+id/servo4_seek_bar"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="5dp"
         android:text="150"
         android:textAlignment="textStart"
@@ -220,14 +219,13 @@
         android:layout_width="41dp"
         android:layout_height="40dp"
         android:layout_alignTop="@+id/servo4_seek_bar"
+        android:layout_marginStart="-55dp"
         android:layout_marginTop="-5dp"
         android:layout_toEndOf="@+id/servo4_seek_bar"
-        android:layout_marginStart="-55dp"
         android:background="@color/transparentColor"
         android:rotation="90"
         android:scaleType="fitCenter"
         android:src="@drawable/button_arrow" />
-
 
 
     <SeekBar
@@ -262,8 +260,8 @@
         android:layout_width="25dp"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/servo2_seek_bar"
-        android:layout_marginStart="25dp"
         android:layout_alignTop="@+id/servo2_seek_bar"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="5dp"
         android:text="150"
         android:textAlignment="center"
@@ -281,8 +279,6 @@
         android:rotation="90"
         android:scaleType="fitCenter"
         android:src="@drawable/button_arrow_1" />
-
-
 
 
     <SeekBar
@@ -317,8 +313,8 @@
         android:layout_width="25dp"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/servo3_seek_bar"
-        android:layout_marginStart="25dp"
         android:layout_alignTop="@+id/servo3_seek_bar"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="5dp"
         android:text="150"
         android:textAlignment="center"
@@ -338,14 +334,13 @@
         android:src="@drawable/button_arrow_1" />
 
 
-
     <SeekBar
         android:id="@+id/servo1_seek_bar"
         style="@android:style/Widget.Material.SeekBar"
         android:layout_width="225dp"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/servo4_seek_bar"
         android:layout_below="@+id/servo3_seek_bar"
+        android:layout_alignEnd="@+id/servo4_seek_bar"
         android:layout_marginTop="40dp"
         android:max="270"
         android:progress="150"
@@ -370,8 +365,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/servo1_seek_bar"
-        android:layout_marginStart="25dp"
         android:layout_alignTop="@+id/servo1_seek_bar"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="5dp"
         android:text="150"
         android:textAlignment="textStart"
@@ -383,9 +378,9 @@
         android:layout_width="41dp"
         android:layout_height="40dp"
         android:layout_alignTop="@+id/servo1_seek_bar"
+        android:layout_marginStart="-15dp"
         android:layout_marginTop="-5dp"
         android:layout_toEndOf="@+id/servo1_seek_bar"
-        android:layout_marginStart="-15dp"
         android:background="@color/transparentColor"
         android:rotation="90"
         android:scaleType="fitCenter"
@@ -397,8 +392,8 @@
         android:layout_height="50dp"
         android:layout_below="@+id/servo1_seek_bar"
         android:layout_alignStart="@+id/servo1_btn_sub"
-        android:layout_marginStart="73dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="18dp"
         android:background="@color/transparentColor"
         android:scaleType="fitCenter"
         android:src="@drawable/magnet_off" />
@@ -408,12 +403,25 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignTop="@+id/btn_magnet"
-        android:layout_marginStart="35dp"
+        android:layout_marginStart="19dp"
         android:layout_marginTop="0dp"
         android:layout_toEndOf="@+id/btn_magnet"
         android:background="@color/transparentColor"
         android:rotation="-90"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_trending_down_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/ibtn_left_state"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignTop="@+id/btn_magnet"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@+id/ibtn_catch_state"
+        android:background="@color/transparentColor"
+        android:rotation="45"
+        android:scaleType="fitCenter"
+        android:src="@drawable/left_object_on_24dp" />
 
 </RelativeLayout>

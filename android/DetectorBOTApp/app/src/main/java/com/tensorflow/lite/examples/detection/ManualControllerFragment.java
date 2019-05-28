@@ -1,6 +1,7 @@
 package com.tensorflow.lite.examples.detection;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,11 +41,12 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
     private SeekBar speedBar , servo1Bar , servo4Bar  , angelBar , servo2Bar , servo3Bar;
 
     private TextView tvSpeedProgress, tvServo1Bar , tvServo4Bar  , tvServo3Bar , tvServo2Bar , tvAngelBar;
-    private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet, ibtnCatchState;
+    private ImageButton left, right, up, down, leftUp, rightUp, leftDown, rightDown, centerButton , btnMagnet, ibtnCatchState, ibtnLeftState;
 
     private boolean magnetFlag = false;
     private Vibrator vibe;
 
+    private ImageView ivBreak;
 
 
 
@@ -160,6 +163,27 @@ public class ManualControllerFragment extends Fragment implements BluetoothFragm
         servo3Down = view.findViewById(R.id.servo3_btn_sub);
         servo4Up   = view.findViewById(R.id.servo4_btn_plus);
         servo4Down = view.findViewById(R.id.servo4_btn_sub);
+
+
+        ibtnLeftState = view.findViewById(R.id.ibtn_left_state);
+        ibtnLeftState.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Handler mHandler  = new Handler();
+                try {
+                    onFragmentInteraction("l1#");
+                    ibtnLeftState.setImageResource(R.drawable.left_object_off_24dp);
+                    vibe.vibrate(25);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ibtnLeftState.setImageResource(R.drawable.left_object_on_24dp);
+                        }
+                    },5000);
+
+                }catch (Exception e){}
+            }
+        });
 
         ibtnCatchState = view.findViewById(R.id.ibtn_catch_state);
         ibtnCatchState.setOnClickListener(new View.OnClickListener() {
