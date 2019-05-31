@@ -33,9 +33,31 @@
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/setting_scrollView"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/tv_setting_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v4.widget.NestedScrollView>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_setting_title"
+        android:layout_marginTop="63dp">
+
+        <SeekBar
+            android:id="@+id/sb_effency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:max="100"
+            android:progress="80" />
+    </android.support.v4.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/setting_scrollView"
+        android:layout_alignStart="@+id/setting_scrollView"
+        android:layout_marginStart="194dp"
+        android:layout_marginTop="19dp"
+        android:text="80"
+        android:textColor="@color/cardview_dark_background"
+        android:textStyle="bold" />
 
 </RelativeLayout>
