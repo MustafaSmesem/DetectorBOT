@@ -970,7 +970,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }else if (searchArmType == '4'){
       servo4Value -= servo4SearchSpeed;
       try {
-        onFragmentInteraction("s4u#");
+        onFragmentInteraction("s4R#");
       }catch (Exception e){      }
       if (servo4Value <= servo4Reset)
         searchArmType = 'r';
